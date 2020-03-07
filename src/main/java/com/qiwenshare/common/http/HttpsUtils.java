@@ -1,4 +1,4 @@
-package com.mac.common.http;
+package com.qiwenshare.common.http;
 
 
 import org.apache.http.HttpEntity;

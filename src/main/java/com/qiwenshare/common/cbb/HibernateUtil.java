@@ -1,4 +1,4 @@
-package com.mac.common.cbb;
+package com.qiwenshare.common.cbb;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;

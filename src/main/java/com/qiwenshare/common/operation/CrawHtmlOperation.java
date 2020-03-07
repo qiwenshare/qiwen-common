@@ -1,6 +1,6 @@
-package com.mac.common.operation;
+package com.qiwenshare.common.operation;
 
-import com.mac.common.util.StringUtil;
+import com.qiwenshare.common.util.StringUtil;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.WebClient;

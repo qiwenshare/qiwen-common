@@ -1,4 +1,4 @@
-package com.mac.common.cbb;
+package com.qiwenshare.common.cbb;
 
 import java.text.DateFormat;
 import java.text.ParseException;

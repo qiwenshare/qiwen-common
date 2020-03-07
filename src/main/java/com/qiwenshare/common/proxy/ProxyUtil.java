@@ -1,4 +1,4 @@
-package com.mac.common.proxy;
+package com.qiwenshare.common.proxy;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

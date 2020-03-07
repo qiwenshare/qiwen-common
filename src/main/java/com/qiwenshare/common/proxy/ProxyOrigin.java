@@ -1,4 +1,4 @@
-package com.mac.common.proxy;
+package com.qiwenshare.common.proxy;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;

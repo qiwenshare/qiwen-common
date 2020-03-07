@@ -1,4 +1,4 @@
-package com.mac.common.domain;
+package com.qiwenshare.common.domain;
 
 /**
  * 代理实体类

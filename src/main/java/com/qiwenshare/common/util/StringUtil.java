@@ -1,4 +1,4 @@
-package com.mac.common.util;
+package com.qiwenshare.common.util;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

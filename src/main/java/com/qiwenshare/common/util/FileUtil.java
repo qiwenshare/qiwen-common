@@ -1,4 +1,4 @@
-package com.mac.common.util;
+package com.qiwenshare.common.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;

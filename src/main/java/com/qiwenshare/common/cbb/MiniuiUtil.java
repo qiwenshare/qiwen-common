@@ -1,7 +1,7 @@
-package com.mac.common.cbb;
+package com.qiwenshare.common.cbb;
 
 
-import com.mac.common.domain.TableQueryBean;
+import com.qiwenshare.common.domain.TableQueryBean;
 
 public class MiniuiUtil {
 

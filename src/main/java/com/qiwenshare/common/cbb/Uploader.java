@@ -1,9 +1,9 @@
-package com.mac.common.cbb;
+package com.qiwenshare.common.cbb;
 
-import com.mac.common.domain.UploadFile;
-import com.mac.common.operation.ImageOperation;
-import com.mac.common.util.FileUtil;
-import com.mac.common.util.PathUtil;
+import com.qiwenshare.common.domain.UploadFile;
+import com.qiwenshare.common.operation.ImageOperation;
+import com.qiwenshare.common.util.FileUtil;
+import com.qiwenshare.common.util.PathUtil;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.util.Streams;

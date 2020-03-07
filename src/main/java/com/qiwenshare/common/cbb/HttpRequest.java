@@ -1,10 +1,10 @@
-package com.mac.common.cbb;
+package com.qiwenshare.common.cbb;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.mac.common.domain.ProxyBean;
-import com.mac.common.proxy.ProxyConstant;
+import com.qiwenshare.common.domain.ProxyBean;
+import com.qiwenshare.common.proxy.ProxyConstant;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 

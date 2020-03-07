@@ -1,4 +1,4 @@
-package com.mac.common.domain;
+package com.qiwenshare.common.domain;
 
 /**
  * md-edit插件上传图片返回数据实体类

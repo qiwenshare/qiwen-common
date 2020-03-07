@@ -1,4 +1,4 @@
-package com.mac.common.domain;
+package com.qiwenshare.common.domain;
 
 public class TableQueryBean {
     //key, pageIndex, pageSize, sortField, sortOrder

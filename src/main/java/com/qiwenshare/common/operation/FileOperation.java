@@ -1,7 +1,7 @@
-package com.mac.common.operation;
+package com.qiwenshare.common.operation;
 
-import com.mac.common.util.FileUtil;
-import com.mac.common.util.PathUtil;
+import com.qiwenshare.common.util.FileUtil;
+import com.qiwenshare.common.util.PathUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

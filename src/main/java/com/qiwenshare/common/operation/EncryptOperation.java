@@ -1,4 +1,4 @@
-package com.mac.common.operation;
+package com.qiwenshare.common.operation;
 
 import org.springframework.util.DigestUtils;
 

@@ -1,4 +1,4 @@
-package com.mac.common.cbb;
+package com.qiwenshare.common.cbb;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
