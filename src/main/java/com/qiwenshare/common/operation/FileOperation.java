@@ -1,18 +1,28 @@
 package com.qiwenshare.common.operation;
 
+import com.github.junrar.Archive;
+import com.github.junrar.rarfile.FileHeader;
 import com.qiwenshare.common.util.FileUtil;
 import com.qiwenshare.common.util.PathUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+/**
+ * 文件操作
+ */
+@Slf4j
 public class FileOperation {
     private static Logger logger = LoggerFactory.getLogger(FileOperation.class);
-
+    private static Executor executor = Executors.newFixedThreadPool(20);
     /**
      * 创建文件
      *
@@ -201,22 +211,23 @@ public class FileOperation {
     /**
      * 文件解压缩
      *
-     * @param file        需要解压的文件
+     * @param sourceFile        需要解压的文件
      * @param destDirPath 目的路径
      * @return 解压目录列表
      */
-    public static List<String> unzip(File file, String destDirPath) {
+    public static List<String> unzip(File sourceFile, String destDirPath) {
         ZipFile zipFile = null;
         Set<String> set = new HashSet<String>();
         // set.add("/");
         List<String> fileEntryNameList = new ArrayList<>();
         try {
-            zipFile = new ZipFile(file);
+            zipFile = new ZipFile(sourceFile, Charset.forName("GBK"));
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry entry = (ZipEntry) entries.nextElement();
 
                 String[] nameStrArr = entry.getName().split("/");
+
                 String nameStr = "/";
                 for (int i = 0; i < nameStrArr.length; i++) {
                     if (!"".equals(nameStrArr[i])) {
@@ -228,6 +239,8 @@ public class FileOperation {
 
                 logger.info("解压" + entry.getName());
                 String zipPath = "/" + entry.getName();
+
+
                 fileEntryNameList.add(zipPath);
                 //如果是文件夹，就创建个文件夹
                 if (entry.isDirectory()) {
@@ -244,16 +257,37 @@ public class FileOperation {
                     }
                     targetFile.createNewFile();
                     // 将压缩文件内容写入到这个文件中
-                    InputStream is = zipFile.getInputStream(entry);
-                    FileOutputStream fos = new FileOutputStream(targetFile);
-                    int len;
-                    byte[] buf = new byte[2048];
-                    while ((len = is.read(buf)) != -1) {
-                        fos.write(buf, 0, len);
+                    InputStream is = null;
+                    FileOutputStream fos = null;
+                    try {
+                        is = zipFile.getInputStream(entry);
+                        fos = new FileOutputStream(targetFile);
+                        int len;
+                        byte[] buf = new byte[2048];
+                        while ((len = is.read(buf)) != -1) {
+                            fos.write(buf, 0, len);
+                        }
+                    } catch (Exception e) {
+                        // 关流顺序，先打开的后关闭
+                        if (fos != null) {
+                            try {
+                                fos.close();
+                            } catch (Exception e1) {
+                                log.error("关闭流失败:" + e1);
+                            }
+
+                        }
+                        if (is != null) {
+                            try {
+                                is.close();
+                            } catch (Exception e2) {
+                                log.error("关闭流失败：" + e2);
+                            }
+
+                        }
+
                     }
-                    // 关流顺序，先打开的后关闭
-                    fos.close();
-                    is.close();
+
                 }
             }
         } catch (Exception e) {
@@ -267,13 +301,117 @@ public class FileOperation {
                 }
             }
         }
+        for (String zipPath : fileEntryNameList) {
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    if (FileUtil.isImageFile(FileUtil.getFileExtendName(zipPath))) {
+                        File file = new File(destDirPath + zipPath);
+                        File minFile = new File(destDirPath + FileUtil.getFileNameNotExtend(zipPath) + "_min." + FileUtil.getFileExtendName(zipPath));
+                        try {
+                            ImageOperation.thumbnailsImage(file, minFile, 300);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
+
+        }
+        List<String> res = new ArrayList<>(set);
+        return res;
+    }
+
+    /**
+     * 解压rar
+     *
+     * @param sourceFile  需要解压的文件
+     * @param destDirPath 目的路径
+     * @throws Exception 异常
+     * @return 解压文件列表
+     */
+    public static List<String> unrar(File sourceFile, String destDirPath) throws Exception {
+        File destDir = new File(destDirPath);
+        Set<String> set = new HashSet<String>();
+        Archive archive = null;
+        FileOutputStream fos = null;
+        System.out.println("Starting 开始解压...");
+        try {
+            archive = new Archive(sourceFile);
+            FileHeader fh = archive.nextFileHeader();
+            int count = 0;
+            File destFileName = null;
+            while (fh != null) {
+                set.add("/" + fh.getFileName());
+                System.out.println((++count) + ") " + fh.getFileName());
+                String compressFileName = fh.getFileName().trim();
+                destFileName = new File(destDir.getAbsolutePath() + "/" + compressFileName);
+                if (fh.isDirectory()) {
+                    if (!destFileName.exists()) {
+                        destFileName.mkdirs();
+                    }
+                    fh = archive.nextFileHeader();
+                    continue;
+                }
+                if (!destFileName.getParentFile().exists()) {
+                    destFileName.getParentFile().mkdirs();
+                }
+
+
+                fos = new FileOutputStream(destFileName);
+                archive.extractFile(fh, fos);
+                fos.close();
+                fos = null;
+                fh = archive.nextFileHeader();
+            }
+
+            archive.close();
+            archive = null;
+            System.out.println("Finished 解压完成!");
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (Exception e) {
+                    log.error("关闭流失败：" + e.getMessage());
+                }
+            }
+            if (archive != null) {
+                try {
+                    archive.close();
+                } catch (Exception e) {
+                    log.error("关闭流失败：" + e.getMessage());
+                }
+            }
+        }
+
+
+        for (String zipPath : set) {
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    if (FileUtil.isImageFile(FileUtil.getFileExtendName(zipPath))) {
+                        File file = new File(destDirPath + zipPath);
+                        File minFile = new File(destDirPath + FileUtil.getFileNameNotExtend(zipPath) + "_min." + FileUtil.getFileExtendName(zipPath));
+                        try {
+                            ImageOperation.thumbnailsImage(file, minFile, 300);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
+
+        }
         List<String> res = new ArrayList<>(set);
         return res;
     }
 
     public static long deleteFileFromDisk(String fileurl) {
         String fileUrl = PathUtil.getStaticPath() + fileurl;
-        String extendName = FileUtil.getFileType(fileUrl);
+        String extendName = FileUtil.getFileExtendName(fileUrl);
         String minFileUrl = fileUrl.replace("." + extendName, "_min." + extendName);
         long filesize = getFileSize(fileUrl);
 
@@ -283,47 +421,5 @@ public class FileOperation {
         return filesize;
     }
 
-
-    /**
-     * //保存数据
-     * @param fileName 文件名称
-     * @param data json字符串
-     */
-    public static void saveDataToFile(String filePath, String fileName, String data){
-        BufferedWriter writer = null;
-
-        File dir = new File(filePath);
-
-        if (!filePath.endsWith(File.separator)) {
-            filePath = filePath + File.separator;
-        }
-
-        File file = new File(filePath+ fileName);
-
-        //如果文件不存在，则新建一个
-        if(!file.exists()){
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        //写入
-        try {
-            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file,false), "UTF-8"));
-            writer.write(data);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }finally {
-            try {
-                if(writer != null){
-                    writer.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        System.out.println("文件写入成功！");
-    }
 
 }
