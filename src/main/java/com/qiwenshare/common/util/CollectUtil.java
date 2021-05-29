@@ -1,7 +1,6 @@
 package com.qiwenshare.common.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
@@ -12,9 +11,8 @@ import java.net.UnknownHostException;
  *
  * @author ma116
  */
+@Slf4j
 public class CollectUtil {
-
-    private static final Logger LOG = LoggerFactory.getLogger(CollectUtil.class);
 
     /**
      * java 后台获取访问客户端ip地址
@@ -50,7 +48,7 @@ public class CollectUtil {
         try {
             addr = InetAddress.getLocalHost();
         } catch (UnknownHostException e) {
-            LOG.error("获取本地IP失败");
+            log.error("获取本地IP失败");
         }
         if (addr != null) {
             ip = addr.getHostAddress().toString();

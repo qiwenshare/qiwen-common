@@ -3,10 +3,7 @@ package com.qiwenshare.common.operation;
 import com.github.junrar.Archive;
 import com.github.junrar.rarfile.FileHeader;
 import com.qiwenshare.common.util.FileUtil;
-import com.qiwenshare.common.util.PathUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -21,7 +18,6 @@ import java.util.zip.ZipFile;
  */
 @Slf4j
 public class FileOperation {
-    private static Logger logger = LoggerFactory.getLogger(FileOperation.class);
     private static Executor executor = Executors.newFixedThreadPool(20);
     /**
      * 创建文件
@@ -237,7 +233,7 @@ public class FileOperation {
 
                 }
 
-                logger.info("解压" + entry.getName());
+                log.info("解压" + entry.getName());
                 String zipPath = "/" + entry.getName();
 
 
@@ -409,17 +405,17 @@ public class FileOperation {
         return res;
     }
 
-    public static long deleteFileFromDisk(String fileurl) {
-        String fileUrl = PathUtil.getStaticPath() + fileurl;
-        String extendName = FileUtil.getFileExtendName(fileUrl);
-        String minFileUrl = fileUrl.replace("." + extendName, "_min." + extendName);
-        long filesize = getFileSize(fileUrl);
-
-        FileOperation.deleteFile(fileUrl);
-        FileOperation.deleteFile(minFileUrl);
-
-        return filesize;
-    }
+//    public static long deleteFileFromDisk(String fileurl) {
+//        String fileUrl = PathUtil.getStaticPath() + fileurl;
+//        String extendName = FileUtil.getFileExtendName(fileUrl);
+//        String minFileUrl = fileUrl.replace("." + extendName, "_min." + extendName);
+//        long filesize = getFileSize(fileUrl);
+//
+//        FileOperation.deleteFile(fileUrl);
+//        FileOperation.deleteFile(minFileUrl);
+//
+//        return filesize;
+//    }
 
 
 }
