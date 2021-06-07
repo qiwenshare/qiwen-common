@@ -417,5 +417,47 @@ public class FileOperation {
 //        return filesize;
 //    }
 
+    /**
+     * 保存数据
+     * @param fileName 文件名称
+     * @param data json字符串
+     */
+    public static void saveDataToFile(String filePath, String fileName, String data){
+        BufferedWriter writer = null;
+
+        File dir = new File(filePath);
+
+        if (!filePath.endsWith(File.separator)) {
+            filePath = filePath + File.separator;
+        }
+
+        File file = new File(filePath+ fileName);
+
+        //如果文件不存在，则新建一个
+        if(!file.exists()){
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        //写入
+        try {
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file,false), "UTF-8"));
+            writer.write(data);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                if(writer != null){
+                    writer.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("文件写入成功！");
+    }
+
 
 }

@@ -5,8 +5,10 @@ package com.qiwenshare.common.util;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class DateUtil {
 
@@ -116,6 +118,30 @@ public class DateUtil {
     public static long getTime() {
         long time = new Date().getTime();
         return time;
+    }
+
+    public static List<String> getRecent30DateList() {
+        SimpleDateFormat fmt  = new SimpleDateFormat("yyyy-MM-dd");
+        Date today = new Date();
+        String date=fmt.format(today);
+        String maxDateStr = date;
+        String minDateStr = "";
+        Calendar calc =Calendar.getInstance();
+        List<String> datefor30List=new ArrayList<String>();
+        try {
+            for(int i=0;i<30;i++){
+                calc.setTime(fmt.parse(maxDateStr));
+                calc.add(calc.DATE, -i);
+                Date minDate = calc.getTime();
+                minDateStr = fmt.format(minDate);
+                datefor30List.add(minDateStr);
+
+            }
+        } catch (ParseException e1) {
+            e1.printStackTrace();
+        }
+        return datefor30List;
+
     }
 
 //    public static void main(String[] args) {
