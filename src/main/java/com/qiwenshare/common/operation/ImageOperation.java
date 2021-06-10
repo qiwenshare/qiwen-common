@@ -32,9 +32,10 @@ public class ImageOperation {
      * 压缩
      * @param inFile 源文件
      * @param outFile 目的文件
+     * @param imageSize 图像大小
      * @throws IOException io异常
      */
-    public static void thumbnailsImage(File inFile, File outFile, int imageSize) throws IOException {
+     public static void thumbnailsImage(File inFile, File outFile, int imageSize) throws IOException {
 
         Thumbnails.of(inFile).size(imageSize, imageSize)
                 .toFile(outFile);

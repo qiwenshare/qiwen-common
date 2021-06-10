@@ -419,8 +419,9 @@ public class FileOperation {
 
     /**
      * 保存数据
-     * @param fileName 文件名称
-     * @param data json字符串
+     * @param filePath 文件路径
+     * @param fileName 文件名
+     * @param data 数据
      */
     public static void saveDataToFile(String filePath, String fileName, String data){
         BufferedWriter writer = null;

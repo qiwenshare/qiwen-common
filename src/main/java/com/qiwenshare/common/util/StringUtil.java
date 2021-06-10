@@ -6,8 +6,8 @@ import java.util.regex.Pattern;
 public class StringUtil {
     /**
      *  去除字符串中的空格，回车，换行，缩进
-     * @param str
-     * @return
+     * @param str src
+     * @return 返回
      */
     public static String replaceBlank(String str) {
 
@@ -35,9 +35,9 @@ public class StringUtil {
 
     /**
      * 获取字符串中字串在父串出现的次数
-     * @param childStr
-     * @param parentStr
-     * @return
+     * @param childStr 子串
+     * @param parentStr 父串
+     * @return int
      */
     public static int getChildStrCount(String childStr, String parentStr) {
         String input = "nihaoksdoksad";

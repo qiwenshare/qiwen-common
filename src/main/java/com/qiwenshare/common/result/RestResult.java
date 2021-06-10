@@ -6,7 +6,7 @@ import lombok.Data;
 
 /**
  * 统一结果返回
- * @param <T>
+ * @param <T> 参数泛型
  */
 @Data
 @Schema(name = "统一结果返回",required = true)

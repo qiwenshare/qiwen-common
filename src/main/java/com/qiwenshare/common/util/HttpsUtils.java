@@ -35,9 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by xslde on 2018/7/21
- */
+
 public class HttpsUtils {
     private static final int MAX_TIMEOUT = 7000;
     private static final Logger logger = LoggerFactory.getLogger(HttpsUtils.class);
@@ -66,8 +64,8 @@ public class HttpsUtils {
     /**
      * 发送 GET 请求（HTTP），不带输入数据
      *
-     * @param url
-     * @return
+     * @param url url
+     * @return 返回
      */
     public static String doGet(String url) {
         return doGet(url, new HashMap<String, Object>());
@@ -76,9 +74,9 @@ public class HttpsUtils {
     /**
      * 发送 GET 请求（HTTP），K-V形式
      *
-     * @param url
-     * @param params
-     * @return
+     * @param url url
+     * @param params 参数
+     * @return 返回
      */
     public static String doGet(String url, Map<String, Object> params) {
         String apiUrl = url;
@@ -119,8 +117,8 @@ public class HttpsUtils {
     /**
      * 发送 POST 请求（HTTP），不带输入数据
      *
-     * @param apiUrl
-     * @return
+     * @param apiUrl url
+     * @return 返回
      */
     public static String doPost(String apiUrl) {
         return doPost(apiUrl, new HashMap<String, Object>());
@@ -131,7 +129,7 @@ public class HttpsUtils {
      *
      * @param apiUrl API接口URL
      * @param params 参数map
-     * @return
+     * @return 返回
      */
     public static String doPost(String apiUrl, Map<String, Object> params) {
         CloseableHttpClient httpClient = null;
@@ -173,9 +171,9 @@ public class HttpsUtils {
     /**
      * 发送 POST 请求，JSON形式
      *
-     * @param apiUrl
+     * @param apiUrl url
      * @param json   json对象
-     * @return
+     * @return 返回
      */
     public static String doPost(String apiUrl, Object json) {
         CloseableHttpClient httpClient = null;
@@ -215,7 +213,7 @@ public class HttpsUtils {
     /**
      * 创建SSL安全连接
      *
-     * @return
+     * @return 返回
      */
     private static SSLConnectionSocketFactory createSSLConnSocketFactory() {
         SSLConnectionSocketFactory sslsf = null;
