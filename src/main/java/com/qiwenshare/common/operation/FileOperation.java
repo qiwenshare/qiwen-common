@@ -305,7 +305,7 @@ public class FileOperation {
                         File file = new File(destDirPath + zipPath);
                         File minFile = new File(destDirPath + FileUtil.getFileNameNotExtend(zipPath) + "_min." + FileUtil.getFileExtendName(zipPath));
                         try {
-                            ImageOperation.thumbnailsImage(file, minFile, 300);
+                            ImageOperation.thumbnailsImage(file, minFile, 300, 300);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -392,7 +392,7 @@ public class FileOperation {
                         File file = new File(destDirPath + zipPath);
                         File minFile = new File(destDirPath + FileUtil.getFileNameNotExtend(zipPath) + "_min." + FileUtil.getFileExtendName(zipPath));
                         try {
-                            ImageOperation.thumbnailsImage(file, minFile, 300);
+                            ImageOperation.thumbnailsImage(file, minFile, 300, 300);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
