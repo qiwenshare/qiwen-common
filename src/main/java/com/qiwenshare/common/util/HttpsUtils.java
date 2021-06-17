@@ -26,6 +26,7 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.cert.CertificateException;
@@ -67,7 +68,7 @@ public class HttpsUtils {
      * @param url url
      * @return 返回
      */
-    public static String doGet(String url) {
+    public static InputStream doGet(String url) {
         return doGet(url, new HashMap<String, Object>());
     }
 
@@ -78,7 +79,7 @@ public class HttpsUtils {
      * @param params 参数
      * @return 返回
      */
-    public static String doGet(String url, Map<String, Object> params) {
+    public static InputStream doGet(String url, Map<String, Object> params) {
         String apiUrl = url;
         StringBuffer param = new StringBuffer();
         int i = 0;
@@ -99,11 +100,16 @@ public class HttpsUtils {
         } else {
             httpClient = HttpClients.createDefault();
         }
+        InputStream instream = null;
         try {
             HttpGet httpGet = new HttpGet(apiUrl);
             HttpResponse response = httpClient.execute(httpGet);
             HttpEntity entity = response.getEntity();
-            result = EntityUtils.toString(entity, "UTF-8");
+
+            if (entity != null) {
+                instream = entity.getContent();
+            }
+//            result = EntityUtils.toString(entity, "UTF-8");
 //            if (entity != null) {
 //                InputStream instream = entity.getContent();
 //                result = new BufferedReader(new InputStreamReader(instream)).lines().collect(Collectors.joining(System.lineSeparator()));
@@ -111,7 +117,7 @@ public class HttpsUtils {
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
-        return result;
+        return instream;
     }
 
     /**

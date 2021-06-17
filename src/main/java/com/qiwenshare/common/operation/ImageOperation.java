@@ -1,9 +1,12 @@
 package com.qiwenshare.common.operation;
 
+import com.qiwenshare.common.util.FileUtil;
 import net.coobird.thumbnailator.Thumbnails;
 
-import java.io.File;
-import java.io.IOException;
+import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageOutputStream;
+import java.awt.image.BufferedImage;
+import java.io.*;
 
 public class ImageOperation {
     /**
@@ -41,4 +44,22 @@ public class ImageOperation {
                 .toFile(outFile);
 
     }
+
+    public static InputStream thumbnailsImage(InputStream inputStream, File outFile, int imageSize) throws IOException {
+        File parentFile = outFile.getParentFile();
+        if (!parentFile.exists()) {
+            parentFile.mkdirs();
+        }
+        String extendName = FileUtil.getFileExtendName(outFile.getPath());
+        BufferedImage bufferedImage = Thumbnails.of(inputStream).size(imageSize, imageSize).asBufferedImage();
+
+        Thumbnails.of(bufferedImage).size(imageSize, imageSize).toFile(outFile);
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        ImageOutputStream imOut = ImageIO.createImageOutputStream(os);
+        ImageIO.write(bufferedImage, extendName, imOut);
+        InputStream input = new ByteArrayInputStream(os.toByteArray());
+        return input;
+
+    }
+
 }
