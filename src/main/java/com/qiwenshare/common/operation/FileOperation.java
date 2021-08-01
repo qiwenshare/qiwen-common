@@ -297,23 +297,23 @@ public class FileOperation {
                 }
             }
         }
-        for (String zipPath : fileEntryNameList) {
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    if (FileUtil.isImageFile(FileUtil.getFileExtendName(zipPath))) {
-                        File file = new File(destDirPath + zipPath);
-                        File minFile = new File(destDirPath + FileUtil.getFileNameNotExtend(zipPath) + "_min." + FileUtil.getFileExtendName(zipPath));
-                        try {
-                            ImageOperation.thumbnailsImage(file, minFile, 300, 300);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            });
-
-        }
+//        for (String zipPath : fileEntryNameList) {
+//            executor.execute(new Runnable() {
+//                @Override
+//                public void run() {
+//                    if (FileUtil.isImageFile(FileUtil.getFileExtendName(zipPath))) {
+//                        File file = new File(destDirPath + zipPath);
+//                        File minFile = new File(destDirPath + FileUtil.getFileNameNotExtend(zipPath) + "_min." + FileUtil.getFileExtendName(zipPath));
+//                        try {
+//                            ImageOperation.thumbnailsImage(file, minFile, 300, 300);
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                }
+//            });
+//
+//        }
         List<String> res = new ArrayList<>(set);
         return res;
     }
@@ -384,23 +384,23 @@ public class FileOperation {
         }
 
 
-        for (String zipPath : set) {
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    if (FileUtil.isImageFile(FileUtil.getFileExtendName(zipPath))) {
-                        File file = new File(destDirPath + zipPath);
-                        File minFile = new File(destDirPath + FileUtil.getFileNameNotExtend(zipPath) + "_min." + FileUtil.getFileExtendName(zipPath));
-                        try {
-                            ImageOperation.thumbnailsImage(file, minFile, 300, 300);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            });
-
-        }
+//        for (String zipPath : set) {
+//            executor.execute(new Runnable() {
+//                @Override
+//                public void run() {
+//                    if (FileUtil.isImageFile(FileUtil.getFileExtendName(zipPath))) {
+//                        File file = new File(destDirPath + zipPath);
+//                        File minFile = new File(destDirPath + FileUtil.getFileNameNotExtend(zipPath) + "_min." + FileUtil.getFileExtendName(zipPath));
+//                        try {
+//                            ImageOperation.thumbnailsImage(file, minFile, 300, 300);
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                }
+//            });
+//
+//        }
         List<String> res = new ArrayList<>(set);
         return res;
     }
