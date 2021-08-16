@@ -1,6 +1,5 @@
 package com.qiwenshare.common.operation;
 
-import com.qiwenshare.common.util.FileUtil;
 import net.coobird.thumbnailator.Thumbnails;
 
 import javax.imageio.ImageIO;
@@ -51,7 +50,7 @@ public class ImageOperation {
         if (!parentFile.exists()) {
             parentFile.mkdirs();
         }
-        String extendName = FileUtil.getFileExtendName(outFile.getPath());
+        String extendName = getFileExtendName(outFile.getPath());
         BufferedImage bufferedImage = Thumbnails.of(inputStream).size(width, height).asBufferedImage();
 
         Thumbnails.of(bufferedImage).size(width, height).toFile(outFile);
@@ -61,6 +60,18 @@ public class ImageOperation {
         InputStream input = new ByteArrayInputStream(os.toByteArray());
         return input;
 
+    }
+
+    /**
+     * 获取文件扩展名
+     * @param fileName 文件名
+     * @return 文件扩展名
+     */
+    public static String getFileExtendName(String fileName) {
+        if (fileName.lastIndexOf(".") == -1) {
+            return "";
+        }
+        return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
 
 }

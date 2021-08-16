@@ -1,8 +1,8 @@
 package com.qiwenshare.common.operation;
 
+import com.alibaba.fastjson.JSON;
 import com.github.junrar.Archive;
 import com.github.junrar.rarfile.FileHeader;
-import com.qiwenshare.common.util.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
@@ -12,6 +12,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
 
 /**
  * 文件操作
@@ -204,6 +205,8 @@ public class FileOperation {
         copyFile(srcFile, descFile);
     }
 
+
+
     /**
      * 文件解压缩
      *
@@ -214,17 +217,35 @@ public class FileOperation {
     public static List<String> unzip(File sourceFile, String destDirPath) {
         ZipFile zipFile = null;
         Set<String> set = new HashSet<String>();
-        // set.add("/");
         List<String> fileEntryNameList = new ArrayList<>();
+        Enumeration<? extends ZipEntry> entries = null;
         try {
-            zipFile = new ZipFile(sourceFile, Charset.forName("GBK"));
-            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            try {
+                ZipFile tempZipFile = new ZipFile(sourceFile);
+                entries = tempZipFile.entries();
+                log.info(JSON.toJSONString(entries));
+                zipFile = new ZipFile(sourceFile);
+                entries = zipFile.entries();
+            } catch (IOException e) {
+                throw new RuntimeException("unzip error from ZipUtils", e);
+            } catch (IllegalArgumentException e) {
+                try {
+                    zipFile = new ZipFile(sourceFile, Charset.forName("GBK"));
+                    entries = zipFile.entries();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+
+            } catch (Exception e) {
+                throw new RuntimeException("unzip error from ZipUtils", e);
+            }
+
             while (entries.hasMoreElements()) {
                 ZipEntry entry = (ZipEntry) entries.nextElement();
 
                 String[] nameStrArr = entry.getName().split("/");
 
-                String nameStr = "/";
+                String nameStr = "";
                 for (int i = 0; i < nameStrArr.length; i++) {
                     if (!"".equals(nameStrArr[i])) {
                         nameStr = nameStr + "/" + nameStrArr[i];
@@ -238,24 +259,24 @@ public class FileOperation {
 
 
                 fileEntryNameList.add(zipPath);
-                //如果是文件夹，就创建个文件夹
+
                 if (entry.isDirectory()) {
                     String dirPath = destDirPath + File.separator + entry.getName();
                     File dir = FileOperation.newFile(dirPath);
 
                     dir.mkdir();
                 } else {
-                    //如果是文件，就先创建一个文件，然后用io流把内容拷过去
                     File targetFile = new File(destDirPath + "/" + entry.getName());
-                    // 保证这个文件的父文件夹必须要存在
+
                     if (!targetFile.getParentFile().exists()) {
                         targetFile.getParentFile().mkdirs();
                     }
-                    targetFile.createNewFile();
-                    // 将压缩文件内容写入到这个文件中
+
                     InputStream is = null;
                     FileOutputStream fos = null;
                     try {
+                        targetFile.createNewFile();
+                        // 将压缩文件内容写入到这个文件中
                         is = zipFile.getInputStream(entry);
                         fos = new FileOutputStream(targetFile);
                         int len;
@@ -264,6 +285,9 @@ public class FileOperation {
                             fos.write(buf, 0, len);
                         }
                     } catch (Exception e) {
+                        throw new RuntimeException("解压过程失败", e);
+
+                    } finally {
                         // 关流顺序，先打开的后关闭
                         if (fos != null) {
                             try {
@@ -281,39 +305,20 @@ public class FileOperation {
                             }
 
                         }
-
                     }
 
                 }
             }
-        } catch (Exception e) {
-            throw new RuntimeException("unzip error from ZipUtils", e);
         } finally {
             if (zipFile != null) {
                 try {
                     zipFile.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.error("关闭流失败：{}", e.getMessage());
                 }
             }
         }
-//        for (String zipPath : fileEntryNameList) {
-//            executor.execute(new Runnable() {
-//                @Override
-//                public void run() {
-//                    if (FileUtil.isImageFile(FileUtil.getFileExtendName(zipPath))) {
-//                        File file = new File(destDirPath + zipPath);
-//                        File minFile = new File(destDirPath + FileUtil.getFileNameNotExtend(zipPath) + "_min." + FileUtil.getFileExtendName(zipPath));
-//                        try {
-//                            ImageOperation.thumbnailsImage(file, minFile, 300, 300);
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                }
-//            });
-//
-//        }
+
         List<String> res = new ArrayList<>(set);
         return res;
     }
@@ -383,39 +388,9 @@ public class FileOperation {
             }
         }
 
-
-//        for (String zipPath : set) {
-//            executor.execute(new Runnable() {
-//                @Override
-//                public void run() {
-//                    if (FileUtil.isImageFile(FileUtil.getFileExtendName(zipPath))) {
-//                        File file = new File(destDirPath + zipPath);
-//                        File minFile = new File(destDirPath + FileUtil.getFileNameNotExtend(zipPath) + "_min." + FileUtil.getFileExtendName(zipPath));
-//                        try {
-//                            ImageOperation.thumbnailsImage(file, minFile, 300, 300);
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                }
-//            });
-//
-//        }
         List<String> res = new ArrayList<>(set);
         return res;
     }
-
-//    public static long deleteFileFromDisk(String fileurl) {
-//        String fileUrl = PathUtil.getStaticPath() + fileurl;
-//        String extendName = FileUtil.getFileExtendName(fileUrl);
-//        String minFileUrl = fileUrl.replace("." + extendName, "_min." + extendName);
-//        long filesize = getFileSize(fileUrl);
-//
-//        FileOperation.deleteFile(fileUrl);
-//        FileOperation.deleteFile(minFileUrl);
-//
-//        return filesize;
-//    }
 
     /**
      * 保存数据
