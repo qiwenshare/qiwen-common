@@ -1,12 +1,16 @@
 package com.qiwenshare.common.operation;
 
+import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.*;
 
+@Slf4j
 public class ImageOperation {
     /**
      * 左旋
@@ -50,15 +54,16 @@ public class ImageOperation {
         if (!parentFile.exists()) {
             parentFile.mkdirs();
         }
-        String extendName = getFileExtendName(outFile.getPath());
-        BufferedImage bufferedImage = Thumbnails.of(inputStream).size(width, height).asBufferedImage();
+        BufferedImage bufferedImage = ImageIO.read(inputStream);
+        int oriHeight = bufferedImage.getHeight();
+        int oriWidth = bufferedImage.getWidth();
 
-        Thumbnails.of(bufferedImage).size(width, height).toFile(outFile);
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        ImageOutputStream imOut = ImageIO.createImageOutputStream(os);
-        ImageIO.write(bufferedImage, extendName, imOut);
-        InputStream input = new ByteArrayInputStream(os.toByteArray());
-        return input;
+        if (oriHeight <= height || oriWidth <= width) {
+            ImageIO.write(bufferedImage, FilenameUtils.getExtension(outFile.getName()), outFile);
+        } else {
+            Thumbnails.of(bufferedImage).outputQuality(0.9f).size(width, height).toFile(outFile);
+        }
+        return new FileInputStream(outFile);
 
     }
 
