@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+
 public class JjwtUtil {
  
 	// jti：jwt的唯一身份标识

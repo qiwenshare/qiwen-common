@@ -1,5 +1,6 @@
 package com.qiwenshare.common.operation;
 
+import lombok.extern.slf4j.Slf4j;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
@@ -12,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+@Slf4j
 public class VideoOperation {
 
     public static InputStream thumbnailsImage(InputStream inputStream, File outFile, int width, int height) throws IOException {
@@ -54,6 +56,12 @@ public class VideoOperation {
 
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            String errorMessage = e.getMessage();
+            if (errorMessage.contains("AWTError")) {
+                log.info(e.getMessage());
+            }
+            log.error(e.getMessage());
         }
         return new FileInputStream(outFile);
 

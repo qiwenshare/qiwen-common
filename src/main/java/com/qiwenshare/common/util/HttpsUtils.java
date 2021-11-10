@@ -69,7 +69,37 @@ public class HttpsUtils {
      * @return 返回
      */
     public static InputStream doGet(String url) {
-        return doGet(url, new HashMap<String, Object>());
+        HttpEntity httpEntity = doGetHttpEntity(url, new HashMap<String, Object>());
+        InputStream inputStream = null;
+        try {
+            inputStream = httpEntity.getContent();
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+ 
+        return inputStream;
+    }
+
+    public static String doGetString(String url, Map<String, Object> params) {
+        HttpEntity httpEntity = doGetHttpEntity(url, params);
+        String result = null;
+        try {
+            result = EntityUtils.toString(httpEntity, "UTF-8");
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+        return result;
+    }
+
+    public static String doGetString(String url) {
+        HttpEntity httpEntity = doGetHttpEntity(url, new HashMap<String, Object>());
+        String result = null;
+        try {
+            result = EntityUtils.toString(httpEntity, "UTF-8");
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+        return result;
     }
 
     /**
@@ -79,7 +109,7 @@ public class HttpsUtils {
      * @param params 参数
      * @return 返回
      */
-    public static InputStream doGet(String url, Map<String, Object> params) {
+    public static HttpEntity doGetHttpEntity(String url, Map<String, Object> params) {
         String apiUrl = url;
         StringBuffer param = new StringBuffer();
         int i = 0;
@@ -101,23 +131,15 @@ public class HttpsUtils {
             httpClient = HttpClients.createDefault();
         }
         InputStream instream = null;
+        HttpEntity httpEntity = null;
         try {
             HttpGet httpGet = new HttpGet(apiUrl);
             HttpResponse response = httpClient.execute(httpGet);
-            HttpEntity entity = response.getEntity();
-
-            if (entity != null) {
-                instream = entity.getContent();
-            }
-//            result = EntityUtils.toString(entity, "UTF-8");
-//            if (entity != null) {
-//                InputStream instream = entity.getContent();
-//                result = new BufferedReader(new InputStreamReader(instream)).lines().collect(Collectors.joining(System.lineSeparator()));
-//            }
+            httpEntity = response.getEntity();
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
-        return instream;
+        return httpEntity;
     }
 
     /**
