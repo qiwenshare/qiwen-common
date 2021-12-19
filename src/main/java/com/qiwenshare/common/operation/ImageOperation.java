@@ -2,13 +2,15 @@ package com.qiwenshare.common.operation;
 
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
-import org.apache.commons.io.FileUtils;
+import net.coobird.thumbnailator.geometry.Positions;
 import org.apache.commons.io.FilenameUtils;
 
 import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 @Slf4j
 public class ImageOperation {
@@ -61,7 +63,13 @@ public class ImageOperation {
         if (oriHeight <= height || oriWidth <= width) {
             ImageIO.write(bufferedImage, FilenameUtils.getExtension(outFile.getName()), outFile);
         } else {
-            Thumbnails.of(bufferedImage).outputQuality(0.9f).size(width, height).toFile(outFile);
+            if ( height < width) {
+                Thumbnails.of(bufferedImage).outputQuality(1).scale(1).sourceRegion(Positions.CENTER, oriHeight, oriHeight).toFile(outFile);
+            } else {
+                Thumbnails.of(bufferedImage).outputQuality(1).scale(1).sourceRegion(Positions.CENTER, oriWidth, oriWidth).toFile(outFile);
+            }
+            Thumbnails.of(ImageIO.read(outFile)).outputQuality(0.9).size(width, height).toFile(outFile);
+
         }
         return new FileInputStream(outFile);
 

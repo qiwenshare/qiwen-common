@@ -5,10 +5,7 @@ package com.qiwenshare.common.util;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class DateUtil {
 
@@ -140,6 +137,7 @@ public class DateUtil {
         } catch (ParseException e1) {
             e1.printStackTrace();
         }
+        Collections.reverse(datefor30List);
         return datefor30List;
 
     }

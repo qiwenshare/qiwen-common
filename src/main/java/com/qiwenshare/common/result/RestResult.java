@@ -13,8 +13,8 @@ import lombok.Data;
 public class RestResult<T> {
     @Schema(description = "请求是否成功", example = "true")
     private Boolean success = true;
-    @Schema(description = "返回码", example = "20000")
-    private Integer code;
+    @Schema(description = "返回码", example = "000000")
+    private Integer code = 000000;
     @Schema(description = "返回信息", example = "成功")
     private String message;
     @Schema(description = "返回数据")
