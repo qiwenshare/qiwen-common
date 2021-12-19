@@ -63,7 +63,7 @@ public class ImageOperation {
         if (oriHeight <= height || oriWidth <= width) {
             ImageIO.write(bufferedImage, FilenameUtils.getExtension(outFile.getName()), outFile);
         } else {
-            if ( height < width) {
+            if (oriHeight < oriWidth) {
                 Thumbnails.of(bufferedImage).outputQuality(1).scale(1).sourceRegion(Positions.CENTER, oriHeight, oriHeight).toFile(outFile);
             } else {
                 Thumbnails.of(bufferedImage).outputQuality(1).scale(1).sourceRegion(Positions.CENTER, oriWidth, oriWidth).toFile(outFile);
