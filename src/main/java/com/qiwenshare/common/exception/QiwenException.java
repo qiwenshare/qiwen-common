@@ -10,6 +10,11 @@ import lombok.Data;
 public class QiwenException extends RuntimeException {
     private Integer code;
 
+    public QiwenException(String message) {
+        super(message);
+        this.code = ResultCodeEnum.UNKNOWN_ERROR.getCode();
+    }
+
     public QiwenException(Integer code, String message) {
         super(message);
         this.code = code;

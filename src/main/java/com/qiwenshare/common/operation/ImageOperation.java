@@ -7,10 +7,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 @Slf4j
 public class ImageOperation {
@@ -56,7 +53,14 @@ public class ImageOperation {
         if (!parentFile.exists()) {
             parentFile.mkdirs();
         }
-        BufferedImage bufferedImage = ImageIO.read(inputStream);
+        ByteArrayOutputStream baos = cloneInputStream(inputStream);
+        // 打开两个新的输入流
+        InputStream inputStream1 = new ByteArrayInputStream(baos.toByteArray());
+        InputStream inputStream2 = new ByteArrayInputStream(baos.toByteArray());
+        BufferedImage bufferedImage = ImageIO.read(inputStream1);
+        if (bufferedImage == null) {
+            return inputStream2;
+        }
         int oriHeight = bufferedImage.getHeight();
         int oriWidth = bufferedImage.getWidth();
 
@@ -86,5 +90,23 @@ public class ImageOperation {
         }
         return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
+
+
+    private static ByteArrayOutputStream cloneInputStream(InputStream input) {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = input.read(buffer)) > -1) {
+                baos.write(buffer, 0, len);
+            }
+            baos.flush();
+            return baos;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
 }

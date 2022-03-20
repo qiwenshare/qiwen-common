@@ -9,6 +9,7 @@ import lombok.Getter;
 public enum ResultCodeEnum {
     SUCCESS(true,000000,"成功"),
     UNKNOWN_ERROR(false,999999,"未知错误"),
+
     DAO_INSERT_ERROR(false, 100000, "插入数据异常"),
     DAO_SELECT_ERROR(false, 100001, "查询数据异常"),
     DAO_UPDATE_ERROR(false, 100002, "更新数据异常"),
@@ -19,6 +20,7 @@ public enum ResultCodeEnum {
     PARAM_ERROR(false,100007,"参数错误"),
     NOT_INIT_DATA(false, 100008, "数据未初始化"),
 
+    CUSTOM_ERROR(false,200000,"自定义错误"),
     USER_FORBIDDEN(false,200001,"用户被禁用"),
     NOT_LOGIN_ERROR(false, 200002, "未登录"),
     ;

@@ -1,5 +1,6 @@
 package com.qiwenshare.common.operation;
 
+import com.qiwenshare.common.exception.QiwenException;
 import lombok.extern.slf4j.Slf4j;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
@@ -15,10 +16,12 @@ import java.io.InputStream;
 
 @Slf4j
 public class VideoOperation {
-
+  
     public static InputStream thumbnailsImage(InputStream inputStream, File outFile, int width, int height) throws IOException {
 
-//        File targetFile = new File("E:\\公益广告视频.jpg");
+        if (inputStream == null) {
+            throw new QiwenException(999999, "Get the video preview. The input stream is null.");
+        }
         try {
             FFmpegFrameGrabber ff = new FFmpegFrameGrabber(inputStream);
             ff.start();
