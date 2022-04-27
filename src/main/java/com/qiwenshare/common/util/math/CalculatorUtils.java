@@ -64,7 +64,7 @@ public class CalculatorUtils {
      *
      * @param expression
      *            要计算的表达式例如:5+12*(3+5)/7
-     * @return
+     * @return 计算结果
      */
     public double calculate(String expression) {
         Stack<String> resultStack = new Stack<String>();
@@ -94,7 +94,7 @@ public class CalculatorUtils {
     /**
      * 数据准备阶段将表达式转换成为后缀式栈
      * 
-     * @param expression
+     * @param expression 表达式
      */
     private void prepare(String expression) {
         opStack.push(',');// 运算符放入栈底元素逗号，此符号优先级最低
@@ -139,8 +139,8 @@ public class CalculatorUtils {
     /**
      * 判断是否为算术符号
      *
-     * @param c
-     * @return
+     * @param c 符号
+     * @return 是否是符号
      */
     private boolean isOperator(char c) {
         return c == '+' || c == '-' || c == '*' || c == '/' || c == '(' || c == ')';
@@ -149,9 +149,9 @@ public class CalculatorUtils {
     /**
      * 利用ASCII码-40做下标去算术符号优先级
      *
-     * @param cur
-     * @param peek
-     * @return
+     * @param cur cur
+     * @param peek peek
+     * @return 返回
      */
     public boolean compare(char cur, char peek) {// 如果是peek优先级高于cur，返回true，默认都是peek优先级要低
         boolean result = false;
@@ -164,10 +164,10 @@ public class CalculatorUtils {
     /**
      * 按照给定的算术运算符做计算
      *
-     * @param firstValue
-     * @param secondValue
-     * @param currentOp
-     * @return
+     * @param firstValue 第一个值
+     * @param secondValue 第二个值
+     * @param currentOp 操作
+     * @return 返回
      */
     private String calculate(String firstValue, String secondValue, char currentOp) {
         String result = "";

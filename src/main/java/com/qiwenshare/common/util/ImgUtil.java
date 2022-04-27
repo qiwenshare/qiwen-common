@@ -17,14 +17,6 @@ public class ImgUtil {
 
     private static Logger logger = LoggerFactory.getLogger(ImgUtil.class);
 
-//    public static void main(String[] args) throws IOException {
-//        byte[] bytes = FileUtils.readFileToByteArray(new File("D:\\1.jpg"));
-//        long l = System.currentTimeMillis();
-//        bytes = ImgUtil.compressPicForScale(bytes, 300, "x");// 图片小于300kb
-//        System.out.println(System.currentTimeMillis() - l);
-//        FileUtils.writeByteArrayToFile(new File("D:\\dd1.jpg"), bytes);
-//    }
-
     /**
      * 根据指定大小压缩图片
      *

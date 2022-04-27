@@ -10,10 +10,6 @@ public class StringUtil {
      * @return 返回
      */
     public static String replaceBlank(String str) {
-
-//        String intro = str.replaceAll("\\r\\n", ""); //删除回车换行
-//        intro = intro.replaceAll("\\r", ""); //删除回车换行
-//        intro = intro.replaceAll("\\n", ""); //删除回车换行
         String intro = str.replaceAll("\\t", ""); //删除回车换行
         intro = intro.replaceAll("> +", ">"); //删除回车换行
         intro = intro.replaceAll(" +<", "<"); //删除回车换行

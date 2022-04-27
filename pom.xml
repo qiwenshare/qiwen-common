@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.qiwenshare</groupId>
         <artifactId>qiwenshare</artifactId>
-        <version>1.1.6</version>
+        <version>1.2.0</version>
     </parent>
 
     <groupId>com.qiwenshare</groupId>
@@ -24,9 +24,14 @@
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
     <dependencies>
+
         <dependency>
-            <groupId>com.github.junrar</groupId>
-            <artifactId>junrar</artifactId>
+            <groupId>net.sf.sevenzipjbinding</groupId>
+            <artifactId>sevenzipjbinding</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.sevenzipjbinding</groupId>
+            <artifactId>sevenzipjbinding-all-platforms</artifactId>
         </dependency>
 
         <!--图片压缩-->
@@ -78,18 +83,18 @@
             <artifactId>htmlunit</artifactId>
         </dependency>
 
+<!--        <dependency>-->
+<!--            <groupId>org.bytedeco</groupId>-->
+<!--            <artifactId>javacpp</artifactId>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.bytedeco</groupId>
-            <artifactId>javacpp</artifactId>
+            <artifactId>javacv-platform</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.bytedeco</groupId>
-            <artifactId>javacv</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.bytedeco</groupId>
-            <artifactId>ffmpeg-platform</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.bytedeco</groupId>-->
+<!--            <artifactId>ffmpeg-platform</artifactId>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>

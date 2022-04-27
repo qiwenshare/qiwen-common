@@ -1,9 +1,11 @@
-package com.qiwenshare.common.util;
+package com.qiwenshare.common.operation;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.qiwenshare.common.util.StringUtil;
+
 
 public class CrawHtmlOperation {
 

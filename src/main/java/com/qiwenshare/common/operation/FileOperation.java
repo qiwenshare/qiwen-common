@@ -1,22 +1,19 @@
 package com.qiwenshare.common.operation;
 
-import com.alibaba.fastjson.JSON;
-import com.github.junrar.Archive;
-import com.github.junrar.rarfile.FileHeader;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.sevenzipjbinding.IInArchive;
+import net.sf.sevenzipjbinding.SevenZip;
+import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 
-/**
- * 文件操作
- */
 @Slf4j
 public class FileOperation {
     private static Executor executor = Executors.newFixedThreadPool(20);
@@ -205,192 +202,69 @@ public class FileOperation {
         copyFile(srcFile, descFile);
     }
 
-
-
     /**
      * 文件解压缩
-     *
-     * @param sourceFile        需要解压的文件
-     * @param destDirPath 目的路径
-     * @return 解压目录列表
-     */
-    public static List<String> unzip(File sourceFile, String destDirPath) {
-        ZipFile zipFile = null;
-        Set<String> set = new HashSet<String>();
-        List<String> fileEntryNameList = new ArrayList<>();
-        Enumeration<? extends ZipEntry> entries = null;
-        try {
-            try {
-                ZipFile tempZipFile = new ZipFile(sourceFile);
-                entries = tempZipFile.entries();
-                log.info(JSON.toJSONString(entries));
-                zipFile = new ZipFile(sourceFile);
-                entries = zipFile.entries();
-            } catch (IOException e) {
-                throw new RuntimeException("unzip error from ZipUtils", e);
-            } catch (IllegalArgumentException e) {
-                try {
-                    zipFile = new ZipFile(sourceFile, Charset.forName("GBK"));
-                    entries = zipFile.entries();
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
-
-            } catch (Exception e) {
-                throw new RuntimeException("unzip error from ZipUtils", e);
-            }
-
-            while (entries.hasMoreElements()) {
-                ZipEntry entry = (ZipEntry) entries.nextElement();
-
-                String[] nameStrArr = entry.getName().split("/");
-
-                String nameStr = "";
-                for (int i = 0; i < nameStrArr.length; i++) {
-                    if (!"".equals(nameStrArr[i])) {
-                        nameStr = nameStr + "/" + nameStrArr[i];
-                        set.add(nameStr);
-                    }
-
-                }
-
-                log.info("解压" + entry.getName());
-                String zipPath = "/" + entry.getName();
-
-
-                fileEntryNameList.add(zipPath);
-
-                if (entry.isDirectory()) {
-                    String dirPath = destDirPath + File.separator + entry.getName();
-                    File dir = FileOperation.newFile(dirPath);
-
-                    dir.mkdir();
-                } else {
-                    File targetFile = new File(destDirPath + "/" + entry.getName());
-
-                    if (!targetFile.getParentFile().exists()) {
-                        targetFile.getParentFile().mkdirs();
-                    }
-
-                    InputStream is = null;
-                    FileOutputStream fos = null;
-                    try {
-                        targetFile.createNewFile();
-                        // 将压缩文件内容写入到这个文件中
-                        is = zipFile.getInputStream(entry);
-                        fos = new FileOutputStream(targetFile);
-                        int len;
-                        byte[] buf = new byte[2048];
-                        while ((len = is.read(buf)) != -1) {
-                            fos.write(buf, 0, len);
-                        }
-                    } catch (Exception e) {
-                        throw new RuntimeException("解压过程失败", e);
-
-                    } finally {
-                        // 关流顺序，先打开的后关闭
-                        if (fos != null) {
-                            try {
-                                fos.close();
-                            } catch (Exception e1) {
-                                log.error("关闭流失败:" + e1);
-                            }
-
-                        }
-                        if (is != null) {
-                            try {
-                                is.close();
-                            } catch (Exception e2) {
-                                log.error("关闭流失败：" + e2);
-                            }
-
-                        }
-                    }
-
-                }
-            }
-        } finally {
-            if (zipFile != null) {
-                try {
-                    zipFile.close();
-                } catch (IOException e) {
-                    log.error("关闭流失败：{}", e.getMessage());
-                }
-            }
-        }
-
-        List<String> res = new ArrayList<>(set);
-        return res;
-    }
-
-    /**
-     * 解压rar
-     *
-     * @param sourceFile  需要解压的文件
-     * @param destDirPath 目的路径
+     * @param sourceFile 源文件
+     * @param destDirPath 目的文件路径
+     * @return 文件列表
      * @throws Exception 异常
-     * @return 解压文件列表
      */
-    public static List<String> unrar(File sourceFile, String destDirPath) throws Exception {
-        File destDir = new File(destDirPath);
-        Set<String> set = new HashSet<String>();
-        Archive archive = null;
-        FileOutputStream fos = null;
-        System.out.println("Starting 开始解压...");
-        try {
-            archive = new Archive(sourceFile);
-            FileHeader fh = archive.nextFileHeader();
-            int count = 0;
-            File destFileName = null;
-            while (fh != null) {
-                set.add("/" + fh.getFileName());
-                System.out.println((++count) + ") " + fh.getFileName());
-                String compressFileName = fh.getFileName().trim();
-                destFileName = new File(destDir.getAbsolutePath() + "/" + compressFileName);
-                if (fh.isDirectory()) {
-                    if (!destFileName.exists()) {
-                        destFileName.mkdirs();
-                    }
-                    fh = archive.nextFileHeader();
-                    continue;
-                }
-                if (!destFileName.getParentFile().exists()) {
-                    destFileName.getParentFile().mkdirs();
-                }
+    public static List<String> unzip(File sourceFile, String destDirPath) throws Exception {
 
-
-                fos = new FileOutputStream(destFileName);
-                archive.extractFile(fh, fos);
-                fos.close();
-                fos = null;
-                fh = archive.nextFileHeader();
-            }
-
-            archive.close();
-            archive = null;
-            System.out.println("Finished 解压完成!");
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (Exception e) {
-                    log.error("关闭流失败：" + e.getMessage());
-                }
-            }
-            if (archive != null) {
-                try {
-                    archive.close();
-                } catch (Exception e) {
-                    log.error("关闭流失败：" + e.getMessage());
-                }
-            }
+        IInArchive archive;
+        RandomAccessFile randomAccessFile;
+        // 第一个参数是需要解压的压缩包路径，第二个参数参考JdkAPI文档的RandomAccessFile
+        //r代表以只读的方式打开文本，也就意味着不能用write来操作文件
+        randomAccessFile = new RandomAccessFile(sourceFile, "r");
+        archive = SevenZip.openInArchive(null, // null - autodetect
+                new RandomAccessFileInStream(randomAccessFile));
+        int[] in = new int[archive.getNumberOfItems()];
+        for (int i = 0; i < in.length; i++) {
+            in[i] = i;
         }
+        archive.extract(in, false, new ExtractCallback(archive,destDirPath));
+        File destFile = new File(destDirPath);
+        Collection<File> files = FileUtils.listFilesAndDirs(destFile, new IOFileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return true;
+            }
+
+            @Override
+            public boolean accept(File file, String s) {
+                return true;
+            }
+        }, new IOFileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return true;
+            }
+
+            @Override
+            public boolean accept(File file, String s) {
+                return true;
+            }
+        });
+        Set<String> set = new HashSet<>();
+        files.forEach(o -> {
+            String path = o.getAbsolutePath().replace(destFile.getAbsolutePath(), "").replace("\\", "/");
+            if (StringUtils.isNotEmpty(path)) {
+                set.add(path);
+            }
+        });
 
         List<String> res = new ArrayList<>(set);
         return res;
     }
+
+//    public static void main(String[] args) {
+//        try {
+//            unrar5(new File("C:\\Users\\马超\\Downloads\\FineAgent.rar"), "E:\\export\\rar5test");
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        System.out.println("结束");
+//    }
 
     /**
      * 保存数据
