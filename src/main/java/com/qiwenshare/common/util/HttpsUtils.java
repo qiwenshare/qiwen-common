@@ -2,6 +2,7 @@ package com.qiwenshare.common.util;
 
 
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -64,12 +65,22 @@ public class HttpsUtils {
 
     /**
      * 发送 GET 请求（HTTP），不带输入数据
-     *
      * @param url url
-     * @return 返回
+     * @return 返回数据流
      */
     public static InputStream doGet(String url) {
-        HttpEntity httpEntity = doGetHttpEntity(url, new HashMap<String, Object>());
+        return doGet(url, null);
+    }
+
+    /**
+     * 发送 GET 请求（HTTP），不带输入数据， 带请求头
+     *
+     * @param url url
+     * @param header header
+     * @return 返回数据流
+     */
+    public static InputStream doGet(String url, Map<String, Object> header) {
+        HttpEntity httpEntity = doGetHttpEntity(url, new HashMap<String, Object>(), header);
         InputStream inputStream = null;
         try {
             inputStream = httpEntity.getContent();
@@ -80,19 +91,23 @@ public class HttpsUtils {
         return inputStream;
     }
 
-    public static String doGetString(String url, Map<String, Object> params) {
-        HttpEntity httpEntity = doGetHttpEntity(url, params);
-        String result = null;
-        try {
-            result = EntityUtils.toString(httpEntity, "UTF-8");
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-        return result;
+    /**
+     * 发送 GET 请求（HTTP），不带输入数据， 带请求头
+     * @param url url
+     * @return 返回字符串结果
+     */
+    public static String doGetString(String url) {
+        return doGetString(url, null);
     }
 
-    public static String doGetString(String url) {
-        HttpEntity httpEntity = doGetHttpEntity(url, new HashMap<String, Object>());
+    /**
+     * 发送 GET 请求（HTTP），不带输入数据， 带请求头
+     * @param url url
+     * @param header header
+     * @return 返回字符串结果
+     */
+    public static String doGetString(String url, Map<String, Object> header) {
+        HttpEntity httpEntity = doGetHttpEntity(url, new HashMap<String, Object>(), header);
         String result = null;
         try {
             result = EntityUtils.toString(httpEntity, "UTF-8");
@@ -103,13 +118,34 @@ public class HttpsUtils {
     }
 
     /**
+     * 发送 GET 请求（HTTP），带输入数据， 带请求头
+     * @param url url
+     * @param params params
+     * @param header header
+     * @return 返回字符串结果
+     */
+    public static String doGetString(String url, Map<String, Object> params, Map<String, Object> header) {
+        HttpEntity httpEntity = doGetHttpEntity(url, params, header);
+        String result = null;
+        try {
+            result = EntityUtils.toString(httpEntity, "UTF-8");
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+        return result;
+    }
+
+
+
+    /**
      * 发送 GET 请求（HTTP），K-V形式
      *
      * @param url url
      * @param params 参数
+     * @param header 请求头
      * @return 返回
      */
-    public static HttpEntity doGetHttpEntity(String url, Map<String, Object> params) {
+    public static HttpEntity doGetHttpEntity(String url, Map<String, Object> params, Map<String, Object> header) {
         String apiUrl = url;
         StringBuffer param = new StringBuffer();
         int i = 0;
@@ -134,6 +170,9 @@ public class HttpsUtils {
         HttpEntity httpEntity = null;
         try {
             HttpGet httpGet = new HttpGet(apiUrl);
+            if (header != null) {
+                httpGet.setHeader("Referer", (String) header.get(HttpHeaders.REFERER));
+            }
             HttpResponse response = httpClient.execute(httpGet);
             httpEntity = response.getEntity();
         } catch (IOException e) {
