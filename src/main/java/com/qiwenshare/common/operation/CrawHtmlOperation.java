@@ -35,4 +35,8 @@ public class CrawHtmlOperation {
         pageXml = StringUtil.replaceBlank(pageXml);
         return pageXml;
     }
+
+    public static void main(String[] args) {
+        System.out.println(crawHtmlByUrl("https://www.baidu.com/"));
+    }
 }
