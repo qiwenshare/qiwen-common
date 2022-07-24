@@ -1,13 +1,11 @@
 package com.qiwenshare.common.util;
 
-import cn.hutool.core.codec.Base64;
 import com.alibaba.fastjson2.JSON;
 import com.github.stuxuhai.jpinyin.PinyinException;
 import com.github.stuxuhai.jpinyin.PinyinFormat;
 import com.github.stuxuhai.jpinyin.PinyinHelper;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.servlet.http.HttpUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -132,9 +130,9 @@ public class MusicUtils {
         return (String) map1.get("lyric");
     }
 
-    public static void main(String[] args) {
-        String lyc = getLyc("周杰伦", "以父之名", "周杰伦地表最强世界巡回演唱会");
-        String decodeStr = Base64.decodeStr(lyc);
-        System.out.println(decodeStr);
-    }
+//    public static void main(String[] args) {
+//        String lyc = getLyc("周杰伦", "以父之名", "周杰伦地表最强世界巡回演唱会");
+//        String decodeStr = Base64.decodeStr(lyc);
+//        System.out.println(decodeStr);
+//    }
 }
