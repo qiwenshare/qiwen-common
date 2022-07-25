@@ -14,6 +14,7 @@
 1.  xxxx
 2.  xxxx
 3.  xxxx
+    mvn clean install org.apache.maven.plugins:maven-deploy-plugin:2.8:deploy -DskipTests
 
 #### 使用说明
 

@@ -224,7 +224,7 @@ public class FileOperation {
         }
         archive.extract(in, false, new ExtractCallback(archive,destDirPath));
         File destFile = new File(destDirPath);
-        Collection<File> files = FileUtils.listFilesAndDirs(destFile, new IOFileFilter() {
+        Collection<File> files = FileUtils.listFiles(destFile, new IOFileFilter() {
             @Override
             public boolean accept(File file) {
                 return true;
