@@ -3,6 +3,10 @@ package com.qiwenshare.common.result;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * 统一结果返回
  * @param <T> 参数泛型
@@ -18,6 +22,10 @@ public class RestResult<T> {
     private String message;
     @Schema(description = "返回数据")
     private T data;
+    @Schema(description = "返回数据列表")
+    private List<T> dataList;
+    @Schema(description = "总数")
+    private long total;
 
     // 通用返回成功
     public static RestResult success() {
@@ -49,6 +57,12 @@ public class RestResult<T> {
     // 自定义返回数据
     public RestResult data(T param) {
         this.setData(param);
+        return this;
+    }
+
+    public RestResult dataList(List<T> param, long total) {
+        this.setDataList(param);
+        this.setTotal(total);
         return this;
     }
 

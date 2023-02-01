@@ -10,7 +10,9 @@ public interface RegexConstant {
 
 	String PHONE_REGEX = "^1[3456789]\\d{9}$";
 	
-	String FILE_NAME_REGEX = "(?!((^(con)$)|^(con)/..*|(^(prn)$)|^(prn)/..*|(^(aux)$)|^(aux)/..*|(^(nul)$)|^(nul)/..*|(^(com)[1-9]$)|^(com)[1-9]/..*|(^(lpt)[1-9]$)|^(lpt)[1-9]/..*)|^/s+|.*/s$)(^[^/////:/*/?/\"/</>/|]{1,255}$)";
+	String DIR_NAME_REGEX = "(?!((^(con)$)|^(con)/..*|(^(prn)$)|^(prn)/..*|(^(aux)$)|^(aux)/..*|(^(nul)$)|^(nul)/..*|(^(com)[1-9]$)|^(com)[1-9]/..*|(^(lpt)[1-9]$)|^(lpt)[1-9]/..*)|^/s+|.*/s$)(^[^/////:/*/?/\"/</>/|]{1,255}$)";
+
+	String FILE_NAME_REGEX = "^[^\\\\/:*?\"<>|]{1,255}$";
 	
 	String PARENT_PATH_REGEX = "^(/.+?/)|(/)$";
 	

@@ -8,7 +8,7 @@ import java.util.Collection;
 
 @Data
 public class JwtUser  implements UserDetails {
-    private Long userId;
+    private String userId;
     private String username;
 
     private String password;
@@ -20,7 +20,7 @@ public class JwtUser  implements UserDetails {
     public JwtUser() {
     }
 
-    public JwtUser(Long userId, String username, String password, Integer available, Collection<? extends GrantedAuthority> authorities) {
+    public JwtUser(String userId, String username, String password, Integer available, Collection<? extends GrantedAuthority> authorities) {
         this.userId = userId;
         this.username = username;
         this.password = password;

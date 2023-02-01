@@ -3,7 +3,9 @@ package com.qiwenshare.common.operation;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.geometry.Positions;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -77,6 +79,33 @@ public class ImageOperation {
         }
         return new FileInputStream(outFile);
 
+    }
+
+    public static InputStream thumbnailsImageForScale(InputStream inputStream, File outFile, long desFileSize) throws IOException {
+
+        byte[] imageBytes = IOUtils.toByteArray(inputStream);
+        if (imageBytes == null || imageBytes.length <= 0 || imageBytes.length < desFileSize * 1024) {
+            FileUtils.writeByteArrayToFile(outFile,imageBytes);
+            return new FileInputStream(outFile);
+        }
+        long srcSize = imageBytes.length;
+        //double accuracy = getAccuracy(srcSize / 1024);
+        double accuracy=0.4;
+        try {
+            while (imageBytes.length > desFileSize * 1024) {
+                ByteArrayInputStream is = new ByteArrayInputStream(imageBytes);
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream(imageBytes.length);
+                Thumbnails.of(is)
+                        .scale(accuracy)
+                        .outputQuality(accuracy)
+                        .toOutputStream(outputStream);
+                imageBytes = outputStream.toByteArray();
+            }
+        } catch (Exception e) {
+            log.error("【图片压缩】msg=图片压缩失败!", e);
+        }
+        FileUtils.writeByteArrayToFile(outFile,imageBytes);
+        return new FileInputStream(outFile);
     }
 
     /**
