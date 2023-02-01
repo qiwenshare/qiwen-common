@@ -172,6 +172,16 @@ public class HttpsUtils {
             HttpGet httpGet = new HttpGet(apiUrl);
             if (header != null) {
                 httpGet.setHeader("Referer", (String) header.get(HttpHeaders.REFERER));
+                httpGet.setHeader("Accept", (String) header.get(HttpHeaders.ACCEPT));
+                httpGet.setHeader("Accept-Encoding", (String) header.get(HttpHeaders.ACCEPT_ENCODING));
+                httpGet.setHeader("Accept-Language", (String) header.get(HttpHeaders.ACCEPT_LANGUAGE));
+                httpGet.setHeader("Cache-Control", (String) header.get(HttpHeaders.CACHE_CONTROL));
+                httpGet.setHeader("Connection", (String) header.get(HttpHeaders.CONNECTION));
+                httpGet.setHeader("Pragma", (String) header.get(HttpHeaders.PRAGMA));
+                httpGet.setHeader("Cookie", (String) header.get("Cookie"));
+                httpGet.setHeader("User-Agent", (String) header.get(HttpHeaders.USER_AGENT));
+                httpGet.setHeader("token", (String) header.get("token"));
+
             }
             HttpResponse response = httpClient.execute(httpGet);
             httpEntity = response.getEntity();
@@ -185,20 +195,22 @@ public class HttpsUtils {
      * 发送 POST 请求（HTTP），不带输入数据
      *
      * @param apiUrl url
+     * @param header 请求头
      * @return 返回
+     *
      */
-    public static String doPost(String apiUrl) {
-        return doPost(apiUrl, new HashMap<String, Object>());
+    public static String doPost(String apiUrl, Map<String, Object> header) {
+        return doPost(apiUrl, new HashMap<String, Object>(), header);
     }
 
     /**
      * 发送 POST 请求，K-V形式
-     *
      * @param apiUrl API接口URL
      * @param params 参数map
+     * @param header 请求头
      * @return 返回
      */
-    public static String doPost(String apiUrl, Map<String, Object> params) {
+    public static String doPost(String apiUrl, Map<String, Object> params, Map<String, Object> header) {
         CloseableHttpClient httpClient = null;
         if (apiUrl.startsWith("https")) {
             httpClient = HttpClients.custom().setSSLSocketFactory(createSSLConnSocketFactory())
@@ -218,6 +230,19 @@ public class HttpsUtils {
                 pairList.add(pair);
             }
             httpPost.setEntity(new UrlEncodedFormEntity(pairList, Charset.forName("UTF-8")));
+            if (header != null) {
+                httpPost.setHeader("Referer", (String) header.get(HttpHeaders.REFERER));
+                httpPost.setHeader("Accept", (String) header.get(HttpHeaders.ACCEPT));
+                httpPost.setHeader("Accept-Encoding", (String) header.get(HttpHeaders.ACCEPT_ENCODING));
+                httpPost.setHeader("Accept-Language", (String) header.get(HttpHeaders.ACCEPT_LANGUAGE));
+                httpPost.setHeader("Cache-Control", (String) header.get(HttpHeaders.CACHE_CONTROL));
+                httpPost.setHeader("Connection", (String) header.get(HttpHeaders.CONNECTION));
+                httpPost.setHeader("Pragma", (String) header.get(HttpHeaders.PRAGMA));
+                httpPost.setHeader("Cookie", (String) header.get("Cookie"));
+                httpPost.setHeader("User-Agent", (String) header.get(HttpHeaders.USER_AGENT));
+                httpPost.setHeader("token", (String) header.get("token"));
+
+            }
             response = httpClient.execute(httpPost);
             HttpEntity entity = response.getEntity();
             httpStr = EntityUtils.toString(entity, "UTF-8");

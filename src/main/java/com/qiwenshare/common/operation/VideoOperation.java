@@ -2,6 +2,8 @@ package com.qiwenshare.common.operation;
 
 import com.qiwenshare.common.exception.QiwenException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
@@ -9,13 +11,46 @@ import org.bytedeco.javacv.Java2DFrameConverter;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.util.ArrayList;
 
 @Slf4j
 public class VideoOperation {
+    public static byte[] addBytes(byte[] data1, byte[] data2) {
+
+        byte[] data3 = new byte[data1.length + data2.length];
+
+        System.arraycopy(data1, 0, data3, 0, data1.length);
+
+        System.arraycopy(data2, 0, data3, data1.length, data2.length);
+
+        return data3;
+
+    }
+    public static void main(String[] args) {
+        File file = new File("E:\\export\\upload\\20220604\\1f54c2a2173812ca1be5e126c8650131.mp4");
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            int catchLong  = 1024* 1024 * 15;
+            System.out.println(inputStream.available());
+            byte[] bytes = new byte[catchLong];
+            inputStream.read(bytes);
+            System.out.println(inputStream.available());
+            byte[] bytes1 = new byte[catchLong];
+            inputStream.skip(inputStream.available() - catchLong);
+//            System.out.println(bytes1.length - inputStream.available() - 102400);
+            inputStream.read(bytes1);
+            byte[] byteAll = addBytes(bytes, bytes1);
+
+//            InputStream in = new ByteArrayInputStream(byteAll);
+//            System.out.println(in.available());
+            FileUtils.writeByteArrayToFile(new File("E:\\export\\upload\\20220604\\1f54c2a2173812ca1be5e126c8650131_min.mp4"), byteAll);
+//            thumbnailsImage(inputStream, new File("E:\\export\\upload\\20220604\\1f54c2a2173812ca1be5e126c8650131_min.jpg"), 150, 150);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
   
     public static InputStream thumbnailsImage(InputStream inputStream, File outFile, int width, int height) throws IOException {
 

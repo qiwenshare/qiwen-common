@@ -1,5 +1,7 @@
 package com.qiwenshare.common.util.security;
 
+import com.qiwenshare.common.exception.QiwenException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,7 +18,7 @@ public class SessionUtil {
             if ("anonymousUser".equals(userName)) {
                 JwtUser userBean = new JwtUser();
                 userBean.setUsername(userName);
-                userBean.setUserId(0L);
+                userBean.setUserId("");
                 return userBean;
             }
         }
@@ -30,5 +32,21 @@ public class SessionUtil {
         }
         JwtUser userBean = (JwtUser) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
         return userBean;
+    }
+
+    public static String getUserId() {
+        JwtUser session = getSession();
+        if (session == null) {
+            throw new QiwenException("用户未登录");
+        }
+        return session.getUserId();
+    }
+
+    public static String getUserId(String teamId) {
+        if (StringUtils.isNotEmpty(teamId) && !"my_space".equals(teamId)) {
+            return teamId;
+        } else {
+            return getUserId();
+        }
     }
 }
