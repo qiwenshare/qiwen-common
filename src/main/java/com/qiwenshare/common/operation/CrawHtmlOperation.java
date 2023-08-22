@@ -1,15 +1,17 @@
 package com.qiwenshare.common.operation;
 
-import com.gargoylesoftware.htmlunit.BrowserVersion;
-import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
-import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.*;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.qiwenshare.common.util.StringUtil;
 
+import java.net.URL;
+
 
 public class CrawHtmlOperation {
-
-    public static String crawHtmlByUrl(String url){
+    public static String crawHtmlByUrl(String url) {
+        return crawHtmlByUrl(url,"GET");
+    }
+    public static String crawHtmlByUrl(String url, String requestMethod) {
         System.out.println("抓取开始，url：" + url);
         WebClient webClient = new WebClient(BrowserVersion.CHROME);
         webClient.getOptions().setThrowExceptionOnScriptError(false);//当JS执行出错的时候是否抛出异常, 这里选择不需要
@@ -21,7 +23,15 @@ public class CrawHtmlOperation {
 
         HtmlPage page = null;
         try {
-            page = webClient.getPage(url);//尝试加载上面图片例子给出的网页
+            if ("POST".equals(requestMethod)) {
+                URL urlRequest = new URL(url);
+                WebRequest requestSettings = new WebRequest(urlRequest, HttpMethod.POST);
+                requestSettings.setAdditionalHeader("Content-Type", "application/json");
+                requestSettings.setRequestBody("{}");
+                page = webClient.getPage(requestSettings);
+            } else {
+                page = webClient.getPage(url);//尝试加载上面图片例子给出的网页
+            }
             webClient.waitForBackgroundJavaScript(50000);//异步JS执行需要耗时,所以这里线程要阻塞30秒,等待异步JS执行结束
         } catch (Exception e) {
             e.printStackTrace();
