@@ -5,6 +5,7 @@ import net.sf.sevenzipjbinding.IInArchive;
 import net.sf.sevenzipjbinding.SevenZip;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.lang3.StringUtils;
 
@@ -211,18 +212,23 @@ public class FileOperation {
      */
     public static List<String> unzip(File sourceFile, String destDirPath) throws Exception {
 
-        IInArchive archive;
-        RandomAccessFile randomAccessFile;
-        // 第一个参数是需要解压的压缩包路径，第二个参数参考JdkAPI文档的RandomAccessFile
-        //r代表以只读的方式打开文本，也就意味着不能用write来操作文件
-        randomAccessFile = new RandomAccessFile(sourceFile, "r");
-        archive = SevenZip.openInArchive(null, // null - autodetect
-                new RandomAccessFileInStream(randomAccessFile));
-        int[] in = new int[archive.getNumberOfItems()];
-        for (int i = 0; i < in.length; i++) {
-            in[i] = i;
+        IInArchive archive = null;
+        RandomAccessFile randomAccessFile = null;
+        try {
+            // 第一个参数是需要解压的压缩包路径，第二个参数参考JdkAPI文档的RandomAccessFile
+            //r代表以只读的方式打开文本，也就意味着不能用write来操作文件
+            randomAccessFile = new RandomAccessFile(sourceFile, "r");
+            archive = SevenZip.openInArchive(null, // null - autodetect
+                    new RandomAccessFileInStream(randomAccessFile));
+            int[] in = new int[archive.getNumberOfItems()];
+            for (int i = 0; i < in.length; i++) {
+                in[i] = i;
+            }
+            archive.extract(in, false, new ExtractCallback(archive, destDirPath));
+        } finally {
+            IOUtils.closeQuietly(archive);
+            IOUtils.closeQuietly(randomAccessFile);
         }
-        archive.extract(in, false, new ExtractCallback(archive,destDirPath));
         File destFile = new File(destDirPath);
 
         Collection<File> files = FileUtils.listFiles(destFile, new IOFileFilter() {
