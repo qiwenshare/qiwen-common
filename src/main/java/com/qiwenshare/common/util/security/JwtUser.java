@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 
 @Data
-public class JwtUser  implements UserDetails {
+public class JwtUser implements UserDetails {
     private String userId;
     private String username;
 
@@ -62,6 +62,6 @@ public class JwtUser  implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return !"0".equals(available);
+        return available != null && 1 == available;
     }
 }
