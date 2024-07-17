@@ -1,11 +1,21 @@
 package com.qiwenshare.common.operation;
 
+import cn.hutool.core.bean.BeanUtil;
+import com.qiwenshare.common.exception.QiwenException;
+import com.qiwenshare.common.result.ImageInfo;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.geometry.Positions;
+import org.apache.commons.imaging.ImageReadException;
+import org.apache.commons.imaging.Imaging;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.bytedeco.javacpp.BytePointer;
+import org.bytedeco.opencv.global.opencv_imgcodecs;
+import org.bytedeco.opencv.global.opencv_imgproc;
+import org.bytedeco.opencv.opencv_core.Mat;
+import org.bytedeco.opencv.opencv_core.Size;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -91,22 +101,202 @@ public class ImageOperation {
         long srcSize = imageBytes.length;
         //double accuracy = getAccuracy(srcSize / 1024);
         double accuracy=0.4;
-        try {
-            while (imageBytes.length > desFileSize * 1024) {
-                ByteArrayInputStream is = new ByteArrayInputStream(imageBytes);
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream(imageBytes.length);
-                Thumbnails.of(is)
-                        .scale(accuracy)
-                        .outputQuality(accuracy)
-                        .toOutputStream(outputStream);
-                imageBytes = outputStream.toByteArray();
-            }
-        } catch (Exception e) {
-            log.error("【图片压缩】msg=图片压缩失败!", e);
+
+        while (imageBytes.length > desFileSize * 1024) {
+            ByteArrayInputStream is = new ByteArrayInputStream(imageBytes);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream(imageBytes.length);
+            Thumbnails.of(is)
+                    .scale(accuracy)
+                    .outputQuality(accuracy)
+                    .toOutputStream(outputStream);
+            imageBytes = outputStream.toByteArray();
         }
+
         FileUtils.writeByteArrayToFile(outFile,imageBytes);
         return new FileInputStream(outFile);
     }
+
+
+//    public static void thumbnailsImageForScale(File inFile, File outFile, long desFileSize) throws IOException {
+//
+//        Mat mat = opencv_imgcodecs.imread(inFile.getAbsolutePath(), opencv_imgcodecs.IMREAD_REDUCED_COLOR_8);
+//        int row = mat.rows();
+//        int col = mat.cols();
+//
+//        int fenmu = col + row;
+//
+//        double widthRite = (double) col / (double) fenmu;
+//        double heightRite = (double) row / (double) fenmu;
+//
+//        int initSize = 5000;
+//        Mat resizedImage = new Mat();
+//        int width = (int) (initSize * (widthRite));
+//        int height = (int) (initSize * (heightRite));
+//
+//
+//
+//        Size size = new Size(width, height);
+//        opencv_imgproc.resize(mat, resizedImage, size);
+//        File parentFile = outFile.getParentFile();
+//        if (!parentFile.exists()) {
+//            parentFile.mkdirs();
+//        }
+//
+//        opencv_imgcodecs.imwrite(outFile.getAbsolutePath(),resizedImage);
+//
+//
+//        while (outFile.length() > desFileSize * 1024) {
+//            Mat newResizedImage = new Mat();
+//            width = (int) ((initSize-=100)  * (widthRite));
+//            height = (int) ((initSize-=100) * (heightRite));
+//
+//
+//
+//            size = new Size(width, height);
+//            opencv_imgproc.resize(mat, newResizedImage, size);
+//
+//
+//            opencv_imgcodecs.imwrite(outFile.getAbsolutePath(),newResizedImage);
+//            try {
+//
+//                newResizedImage.release();
+//                newResizedImage.close();
+//                newResizedImage =null;
+//            } catch (Exception e) {
+//                log.error("释放资源失败：2");
+//            }
+//        }
+//
+//        try {
+//
+//            resizedImage.release();
+//            resizedImage.close();
+//            resizedImage = null;
+//
+//        } catch (Exception e) {
+//            log.error("释放资源失败：1");
+//        }
+//
+//        try {
+//
+//            mat.release();
+//            mat.close();
+//            mat = null;
+//        } catch (Exception e) {
+//            log.error("释放资源失败：2");
+//        }
+//
+//
+//
+//    }
+
+    public static ImageInfo thumbnailsImageFileToOneK(File oriTempFile) {
+        Mat mat = opencv_imgcodecs.imread(oriTempFile.getAbsolutePath(), opencv_imgcodecs.IMREAD_UNCHANGED);
+        ImageInfo imageInfo = new ImageInfo();
+
+        try {
+            org.apache.commons.imaging.ImageInfo imageInfo1 = Imaging.getImageInfo(oriTempFile);
+            BeanUtil.copyProperties(imageInfo1, imageInfo);
+
+        } catch (Exception e) {
+           log.error("Imaging.getImageInfo error: {}", e.getMessage());
+        }
+
+
+
+        int row = mat.rows();
+        int col = mat.cols();
+        Mat resizedImage = new Mat();
+        int resizeWidth = col;
+        int resizeHeight = row;
+
+        imageInfo.setImageHeight(resizeHeight);
+        imageInfo.setImageWidth(resizeWidth);
+        int channels = mat.channels();
+        int type = mat.type();
+        imageInfo.setChannels(channels);
+        imageInfo.setType(type);
+
+
+        if (resizeWidth > resizeHeight) {
+
+
+
+            if ((long) resizeWidth / (long) resizeHeight > 1.83) {
+                if (resizeHeight < 1080) {
+                    closeMat(mat);
+                    return imageInfo;
+                }
+
+                resizeWidth = (int) (1080 / ((double) resizeHeight / (double) resizeWidth));
+                resizeHeight = 1080;
+            } else {
+                if (resizeWidth < 1920) {
+                    closeMat(mat);
+                    return imageInfo;
+                }
+
+                resizeHeight = (int) ((double) resizeHeight / (double) resizeWidth * 1920);
+                resizeWidth = 1920;
+            }
+        } else {
+            int tmp = resizeHeight;
+            resizeHeight = resizeWidth;
+            resizeWidth = tmp;
+
+            if ((long) resizeWidth / (long) resizeHeight > 1.83) {
+                if (resizeHeight < 1080) {
+                    closeMat(mat);
+                    return imageInfo;
+                }
+
+                resizeWidth = (int) (1080 / ((double) resizeHeight / (double) resizeWidth));
+                resizeHeight = 1080;
+            } else {
+                if (resizeWidth < 1920) {
+                    closeMat(mat);
+                    return imageInfo;
+                }
+
+                resizeHeight = (int) ((double) resizeHeight / (double) resizeWidth * 1920);
+                resizeWidth = 1920;
+            }
+
+            int tmp1 = resizeHeight;
+            resizeHeight = resizeWidth;
+            resizeWidth = tmp1;
+        }
+
+        Size size = new Size(resizeWidth, resizeHeight);
+        try {
+            opencv_imgproc.resize(mat, resizedImage, size);
+        } finally {
+            closeMat(mat);
+        }
+        try {
+            opencv_imgcodecs.imwrite(oriTempFile.getAbsolutePath(), resizedImage);
+        } finally {
+            closeMat(resizedImage);
+        }
+        return imageInfo;
+    }
+
+
+
+    public static void closeMat(Mat mat) {
+        try {
+            mat.release();
+
+        } catch (Exception e2) {
+        }
+        try {
+
+            mat.close();
+        } catch (Exception e2) {
+        }
+    }
+
+
 
     /**
      * 获取文件扩展名
