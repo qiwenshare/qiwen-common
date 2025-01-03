@@ -42,7 +42,10 @@ public class SessionUtil {
         return session.getUserId();
     }
 
-    public static String getUserId(String teamId) {
+    public static String getUserId(String teamId, String fileType) {
+        if (StringUtils.equals(fileType, "200")) {
+            return getUserId();
+        }
         if (StringUtils.isNotEmpty(teamId) && !"my_space".equals(teamId)) {
             return teamId;
         } else {

@@ -212,10 +212,18 @@ public class FileOperation {
      * 文件解压缩
      * @param sourceFile 源文件
      * @param destDirPath 目的文件路径
+     * @param filePassword 密码
      * @return 文件列表
      * @throws Exception 异常
      */
     public static List<String> unzip(File sourceFile, String destDirPath, String filePassword) throws Exception {
+
+        try {
+            FileUtils.forceDelete(new File(destDirPath));
+        } catch (IOException e) {
+            log.error("解压前删除目录失败， {}",  destDirPath);
+        }
+
 
         IInArchive archive = null;
         RandomAccessFile randomAccessFile = null;

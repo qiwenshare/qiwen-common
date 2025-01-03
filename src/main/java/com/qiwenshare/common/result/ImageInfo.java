@@ -2,12 +2,6 @@ package com.qiwenshare.common.result;
 
 import lombok.Data;
 
-/**
- * @author MAC
- * @version 1.0
- * @description: TODO
- * @date 2021/12/7 22:05
- */
 @Data
 public class ImageInfo {
 
