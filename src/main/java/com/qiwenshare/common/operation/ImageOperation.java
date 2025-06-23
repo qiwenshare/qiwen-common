@@ -101,10 +101,9 @@ public class ImageOperation {
         byte[] imageBytes = IOUtils.toByteArray(inputStream);
         if (imageBytes == null || imageBytes.length <= 0 || imageBytes.length < desFileSize * 1024) {
             FileUtils.writeByteArrayToFile(outFile, imageBytes);
-            return new FileInputStream(outFile);
+            return new ByteArrayInputStream(imageBytes);
         }
-        long srcSize = imageBytes.length;
-        //double accuracy = getAccuracy(srcSize / 1024);
+
         double accuracy = 0.4;
 
         while (imageBytes.length > desFileSize * 1024) {
@@ -122,80 +121,8 @@ public class ImageOperation {
     }
 
 
-//    public static void thumbnailsImageForScale(File inFile, File outFile, long desFileSize) throws IOException {
-//
-//        Mat mat = opencv_imgcodecs.imread(inFile.getAbsolutePath(), opencv_imgcodecs.IMREAD_REDUCED_COLOR_8);
-//        int row = mat.rows();
-//        int col = mat.cols();
-//
-//        int fenmu = col + row;
-//
-//        double widthRite = (double) col / (double) fenmu;
-//        double heightRite = (double) row / (double) fenmu;
-//
-//        int initSize = 5000;
-//        Mat resizedImage = new Mat();
-//        int width = (int) (initSize * (widthRite));
-//        int height = (int) (initSize * (heightRite));
-//
-//
-//
-//        Size size = new Size(width, height);
-//        opencv_imgproc.resize(mat, resizedImage, size);
-//        File parentFile = outFile.getParentFile();
-//        if (!parentFile.exists()) {
-//            parentFile.mkdirs();
-//        }
-//
-//        opencv_imgcodecs.imwrite(outFile.getAbsolutePath(),resizedImage);
-//
-//
-//        while (outFile.length() > desFileSize * 1024) {
-//            Mat newResizedImage = new Mat();
-//            width = (int) ((initSize-=100)  * (widthRite));
-//            height = (int) ((initSize-=100) * (heightRite));
-//
-//
-//
-//            size = new Size(width, height);
-//            opencv_imgproc.resize(mat, newResizedImage, size);
-//
-//
-//            opencv_imgcodecs.imwrite(outFile.getAbsolutePath(),newResizedImage);
-//            try {
-//
-//                newResizedImage.release();
-//                newResizedImage.close();
-//                newResizedImage =null;
-//            } catch (Exception e) {
-//                log.error("释放资源失败：2");
-//            }
-//        }
-//
-//        try {
-//
-//            resizedImage.release();
-//            resizedImage.close();
-//            resizedImage = null;
-//
-//        } catch (Exception e) {
-//            log.error("释放资源失败：1");
-//        }
-//
-//        try {
-//
-//            mat.release();
-//            mat.close();
-//            mat = null;
-//        } catch (Exception e) {
-//            log.error("释放资源失败：2");
-//        }
-//
-//
-//
-//    }
-
     public static ImageInfo thumbnailsImageFileToOneK(File oriFile, File destFile) {
+
         Mat mat = null;
         try {
             mat = opencv_imgcodecs.imread(oriFile.getAbsolutePath(), opencv_imgcodecs.IMREAD_UNCHANGED);

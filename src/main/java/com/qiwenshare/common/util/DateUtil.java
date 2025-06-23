@@ -1,6 +1,5 @@
 package com.qiwenshare.common.util;
 
-//import cn.hutool.core.util.RandomUtil;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -141,9 +140,5 @@ public class DateUtil {
         return datefor30List;
 
     }
-
-//    public static void main(String[] args) {
-//        System.out.println(RandomUtil.randomInt(6));
-//    }
 
 }
