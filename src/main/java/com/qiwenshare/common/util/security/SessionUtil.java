@@ -12,6 +12,12 @@ public class SessionUtil {
 
     public static JwtUser getSession() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            JwtUser userBean = new JwtUser();
+            userBean.setUsername("anonymousUser");
+            userBean.setUserId("anonymousUser");
+            return userBean;
+        }
         Object principal = authentication.getPrincipal();
         if (principal instanceof String) {
             String userName = (String) principal;

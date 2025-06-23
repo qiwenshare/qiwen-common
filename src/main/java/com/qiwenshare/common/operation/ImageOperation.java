@@ -1,6 +1,7 @@
 package com.qiwenshare.common.operation;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.alibaba.fastjson2.JSON;
 import com.qiwenshare.common.exception.QiwenException;
 import com.qiwenshare.common.result.ImageInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.bytedeco.javacpp.BytePointer;
+import org.bytedeco.opencv.global.opencv_core;
 import org.bytedeco.opencv.global.opencv_imgcodecs;
 import org.bytedeco.opencv.global.opencv_imgproc;
 import org.bytedeco.opencv.opencv_core.Mat;
@@ -25,9 +27,10 @@ import java.io.*;
 public class ImageOperation {
     /**
      * 左旋
-     * @param inFile 源文件
+     *
+     * @param inFile  源文件
      * @param outFile 目的文件
-     * @param angle 角度
+     * @param angle   角度
      * @throws IOException io异常
      */
     public static void leftTotation(File inFile, File outFile, int angle) throws IOException {
@@ -36,9 +39,10 @@ public class ImageOperation {
 
     /**
      * 右旋
-     * @param inFile 源文件
+     *
+     * @param inFile  源文件
      * @param outFile 目的文件
-     * @param angle 角度
+     * @param angle   角度
      * @throws IOException io异常
      */
     public static void rightTotation(File inFile, File outFile, int angle) throws IOException {
@@ -47,13 +51,14 @@ public class ImageOperation {
 
     /**
      * 压缩
-     * @param inFile 源文件
+     *
+     * @param inFile  源文件
      * @param outFile 目的文件
-     * @param width 图像宽
-     * @param height 图像高
+     * @param width   图像宽
+     * @param height  图像高
      * @throws IOException io异常
      */
-     public static void thumbnailsImage(File inFile, File outFile, int width, int height) throws IOException {
+    public static void thumbnailsImage(File inFile, File outFile, int width, int height) throws IOException {
 
         Thumbnails.of(inFile).size(width, height)
                 .toFile(outFile);
@@ -95,12 +100,12 @@ public class ImageOperation {
 
         byte[] imageBytes = IOUtils.toByteArray(inputStream);
         if (imageBytes == null || imageBytes.length <= 0 || imageBytes.length < desFileSize * 1024) {
-            FileUtils.writeByteArrayToFile(outFile,imageBytes);
+            FileUtils.writeByteArrayToFile(outFile, imageBytes);
             return new FileInputStream(outFile);
         }
         long srcSize = imageBytes.length;
         //double accuracy = getAccuracy(srcSize / 1024);
-        double accuracy=0.4;
+        double accuracy = 0.4;
 
         while (imageBytes.length > desFileSize * 1024) {
             ByteArrayInputStream is = new ByteArrayInputStream(imageBytes);
@@ -112,8 +117,8 @@ public class ImageOperation {
             imageBytes = outputStream.toByteArray();
         }
 
-        FileUtils.writeByteArrayToFile(outFile,imageBytes);
-        return new FileInputStream(outFile);
+        FileUtils.writeByteArrayToFile(outFile, imageBytes);
+        return new ByteArrayInputStream(imageBytes);
     }
 
 
@@ -190,26 +195,26 @@ public class ImageOperation {
 //
 //    }
 
-    public static ImageInfo thumbnailsImageFileToOneK(File oriTempFile) {
-        Mat mat = opencv_imgcodecs.imread(oriTempFile.getAbsolutePath(), opencv_imgcodecs.IMREAD_UNCHANGED);
-        ImageInfo imageInfo = new ImageInfo();
-
+    public static ImageInfo thumbnailsImageFileToOneK(File oriFile, File destFile) {
+        Mat mat = null;
         try {
-            org.apache.commons.imaging.ImageInfo imageInfo1 = Imaging.getImageInfo(oriTempFile);
-            BeanUtil.copyProperties(imageInfo1, imageInfo);
-
+            mat = opencv_imgcodecs.imread(oriFile.getAbsolutePath(), opencv_imgcodecs.IMREAD_UNCHANGED);
         } catch (Exception e) {
-           log.error("Imaging.getImageInfo error: {}", e.getMessage());
+            log.error("opencv_imgcodecs.imread exception ", e);
         }
 
-
-
-        int row = mat.rows();
-        int col = mat.cols();
-        Mat resizedImage = new Mat();
-        int resizeWidth = col;
-        int resizeHeight = row;
-
+        ImageInfo imageInfo = new ImageInfo();
+        if (mat == null || mat.empty()) {
+            log.error("Failed to read image: " + oriFile.getAbsolutePath());
+            return imageInfo;
+        }
+        int resizeWidth = mat.cols();
+        int resizeHeight = mat.rows();
+        if (resizeWidth <= 0 || resizeHeight <= 0) {
+            log.error("Invalid image dimensions: width={}, height={}", resizeWidth, resizeHeight);
+            closeMat(mat);
+            return imageInfo;
+        }
         imageInfo.setImageHeight(resizeHeight);
         imageInfo.setImageWidth(resizeWidth);
         int channels = mat.channels();
@@ -217,9 +222,20 @@ public class ImageOperation {
         imageInfo.setChannels(channels);
         imageInfo.setType(type);
 
+        // 计算像素深度
+        int depth = opencv_core.CV_MAT_DEPTH(mat.type());
+        int bitsPerChannel = parseBitsPerChannel(depth);
+        imageInfo.setBitsPerPixel(bitsPerChannel * mat.channels());
+
+        // 推断格式和 MIME 类型
+        inferFormatAndMimeType(oriFile, imageInfo);
+
+        // 设置默认 DPI（示例值）
+        imageInfo.setPhysicalWidthDpi(72);
+        imageInfo.setPhysicalHeightDpi(72);
+
 
         if (resizeWidth > resizeHeight) {
-
 
 
             if ((long) resizeWidth / (long) resizeHeight > 1.83) {
@@ -268,19 +284,20 @@ public class ImageOperation {
         }
 
         Size size = new Size(resizeWidth, resizeHeight);
+        Mat resizedImage = new Mat();
         try {
             opencv_imgproc.resize(mat, resizedImage, size);
         } finally {
             closeMat(mat);
         }
         try {
-            opencv_imgcodecs.imwrite(oriTempFile.getAbsolutePath(), resizedImage);
+            opencv_imgcodecs.imwrite(destFile.getAbsolutePath(), resizedImage);
         } finally {
             closeMat(resizedImage);
         }
+        log.info("imageInfo : {}", JSON.toJSONString(imageInfo));
         return imageInfo;
     }
-
 
 
     public static void closeMat(Mat mat) {
@@ -297,9 +314,53 @@ public class ImageOperation {
     }
 
 
+    // 解析每个通道的位数
+    private static int parseBitsPerChannel(int depth) {
+        switch (depth) {
+            case opencv_core.CV_8U:
+            case opencv_core.CV_8S:
+                return 8;
+            case opencv_core.CV_16U:
+            case opencv_core.CV_16S:
+                return 16;
+            case opencv_core.CV_32S:
+            case opencv_core.CV_32F:
+                return 32;
+            case opencv_core.CV_64F:
+                return 64;
+            default:
+                return 0;
+        }
+    }
+
+    // 推断文件格式和 MIME 类型
+    private static void inferFormatAndMimeType(File file, ImageInfo imageInfo) {
+        String fileName = file.getName().toLowerCase();
+        String format = "unknown";
+        String mimeType = "application/octet-stream";
+
+        if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
+            format = "JPEG";
+            mimeType = "image/jpeg";
+        } else if (fileName.endsWith(".png")) {
+            format = "PNG";
+            mimeType = "image/png";
+        } else if (fileName.endsWith(".bmp")) {
+            format = "BMP";
+            mimeType = "image/bmp";
+        } else if (fileName.endsWith(".gif")) {
+            format = "GIF";
+            mimeType = "image/gif";
+        }
+
+        imageInfo.setFormat(format);
+        imageInfo.setMimeType(mimeType);
+    }
+
 
     /**
      * 获取文件扩展名
+     *
      * @param fileName 文件名
      * @return 文件扩展名
      */
