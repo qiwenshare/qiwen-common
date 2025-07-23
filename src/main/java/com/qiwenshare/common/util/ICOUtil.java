@@ -1,12 +1,9 @@
 package com.qiwenshare.common.util;
 
-import cn.hutool.core.lang.Console;
-import cn.hutool.core.util.ReUtil;
+import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpUtil;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,9 +23,9 @@ public class ICOUtil {
 //        String body = HttpUtil.createGet(navUrl).execute().toString();
         String body = "";
         try {
-            Map<String, Object> header = new HashMap<>();
+            Map<String, String> header = new HashMap<>();
             header.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36");
-            body = HttpsUtils.doGetString(navUrl, header);
+            body = HttpRequest.get(navUrl).headerMap(header, true).execute().body();//..doGetString(navUrl, header);
         } catch (Exception e) {
             body = HttpUtil.createGet(navUrl).execute().toString();
         }

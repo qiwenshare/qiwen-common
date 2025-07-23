@@ -2,12 +2,7 @@ package com.qiwenshare.common.operation;
 
 import com.qiwenshare.common.util.RarUtils;
 import lombok.extern.slf4j.Slf4j;
-import net.sf.sevenzipjbinding.ExtractOperationResult;
-import net.sf.sevenzipjbinding.IInArchive;
-import net.sf.sevenzipjbinding.SevenZip;
-import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
-import net.sf.sevenzipjbinding.simple.ISimpleInArchive;
-import net.sf.sevenzipjbinding.simple.ISimpleInArchiveItem;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -208,109 +203,7 @@ public class FileOperation {
         copyFile(srcFile, descFile);
     }
 
-    /**
-     * 文件解压缩
-     * @param sourceFile 源文件
-     * @param destDirPath 目的文件路径
-     * @param filePassword 密码
-     * @return 文件列表
-     * @throws Exception 异常
-     */
-    public static List<String> unzip(File sourceFile, String destDirPath, String filePassword) throws Exception {
 
-        try {
-            FileUtils.forceDelete(new File(destDirPath));
-        } catch (IOException e) {
-            log.error("解压前删除目录失败， {}",  destDirPath);
-        }
-
-
-        IInArchive archive = null;
-        RandomAccessFile randomAccessFile = null;
-        try {
-            // 第一个参数是需要解压的压缩包路径，第二个参数参考JdkAPI文档的RandomAccessFile
-            //r代表以只读的方式打开文本，也就意味着不能用write来操作文件
-            randomAccessFile = new RandomAccessFile(sourceFile, "r");
-            archive = SevenZip.openInArchive(null, // null - autodetect
-                    new RandomAccessFileInStream(randomAccessFile));
-            ISimpleInArchive simpleInArchive = archive.getSimpleInterface();
-            final String[] str = {null};
-            for (final ISimpleInArchiveItem item : simpleInArchive.getArchiveItems()) {
-                if (!item.isFolder()) {
-                    ExtractOperationResult result;
-//                    String finalFolderName = folderName;
-                    result = item.extractSlow(data -> {
-                        try {
-                            str[0] = RarUtils.getUtf8String(item.getPath());
-                            if (RarUtils.isMessyCode(str[0])) {
-                                str[0] = new String(item.getPath().getBytes(StandardCharsets.ISO_8859_1), "gbk");
-                            }
-                            str[0] = str[0].replace("\\", File.separator); //Linux 下路径错误
-                            String str1 = str[0].substring(0, str[0].lastIndexOf(File.separator) + 1);
-                            File file = new File(destDirPath+ File.separator + str1);
-                            if (!file.exists()) {
-                                file.mkdirs();
-                            }
-                            OutputStream out = new FileOutputStream(destDirPath + File.separator + str[0], true);
-                            IOUtils.write(data, out);
-                            out.close();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            return Integer.parseInt(null);
-                        }
-                        return data.length;
-                    }, filePassword);
-
-                }
-            }
-
-
-
-
-
-//            int[] in = new int[archive.getNumberOfItems()];
-//            for (int i = 0; i < in.length; i++) {
-//                in[i] = i;
-//            }
-//            archive.extract(in, false, new ExtractCallback(archive, destDirPath));
-        } finally {
-            IOUtils.closeQuietly(archive);
-            IOUtils.closeQuietly(randomAccessFile);
-        }
-        File destFile = new File(destDirPath);
-
-        Collection<File> files = FileUtils.listFiles(destFile, new IOFileFilter() {
-            @Override
-            public boolean accept(File file) {
-                return true;
-            }
-
-            @Override
-            public boolean accept(File file, String s) {
-                return true;
-            }
-        }, new IOFileFilter() {
-            @Override
-            public boolean accept(File file) {
-                return true;
-            }
-
-            @Override
-            public boolean accept(File file, String s) {
-                return true;
-            }
-        });
-        Set<String> set = new HashSet<>();
-        files.forEach(o -> {
-            String path = o.getAbsolutePath().replace(destFile.getAbsolutePath(), "").replace("\\", "/");
-            if (StringUtils.isNotEmpty(path)) {
-                set.add(path);
-            }
-        });
-
-        List<String> res = new ArrayList<>(set);
-        return res;
-    }
 
 //    public static void main(String[] args) {
 //        try {
